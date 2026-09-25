@@ -39,6 +39,11 @@ def test_get_content_invalid_input(capsys, invalid_input):
     assert captured.out == "Provide a string that points to a file name\n"   
     assert result == False
 
+def test_task6_script():
+    content = get_content("task6_read_me.txt")
+    count_words_in_string(content) == 104
+    
+
 valid_word_inputs = [
     ("hello world", 2),
     ("The quick brown fox", 4),
