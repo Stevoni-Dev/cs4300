@@ -15,10 +15,10 @@ def signum(number: int | float) -> str:
 # Checks if a number is prime
 def is_prime(number: int) -> bool:
     if not isinstance(number, int) or isinstance(number, bool):
-        print("Must provide integer")
+        print("Must provide natural number")
         return
-    # Based on algorithm, 1 will flag as prime but it is not
-    if number == 1:
+    # Based on algorithm, 1, 0 will flag as prime but it is not
+    if number == 1 or number <= 0:
         return False
         
     # Get square root
@@ -36,8 +36,8 @@ def is_prime(number: int) -> bool:
 def first_ten_prime():
     prime_numbers = list()
     for number in range(2, 30):
-    if is_prime(number):
-        primes.append(number)
+        if is_prime(number):
+            prime_numbers.append(number)
 
     for value in prime_numbers:
         print(value)

@@ -2,7 +2,7 @@ import pytest
 from src.task3 import signum, is_prime, first_ten_prime, triangle_of_100
 
 signum_valid_positive_values = [*range(1,20), 0.1, 4.5, 15.5]
-signum_valid_negative_values = [*range(-1, -20), -0.9, -11.1]
+signum_valid_negative_values = [*range(-20, -1), -0.9, -11.1]
 signum_valud_zero_values = [0.0, 0]
 signum_invalid_inputs = [True, False, "Orange", [1, 2, 3], {"a": 1}, None]
 
@@ -31,7 +31,8 @@ def test_signum_incorrect_input(capsys, invalid_value):
     assert captured.out == "Must provide integer or floating number\n"
 
 prime_numbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
-non_prime_numbers = [item for item in range(1,31) if item not in prime_numbers]
+non_prime_numbers = [item for item in range(0,31) if item not in prime_numbers]
+non_prime_numbers.extend(range(-20, -1))
 is_prime_invalid_inputs = [True, False, "Orange", [1, 2, 3], {"a": 1}, None, 3.14]
 
 print(non_prime_numbers)
@@ -48,7 +49,7 @@ def test_is_prime_with_non_prime_number(non_prime_number):
 def test_is_prime_with_invalid_input(capsys, invalid_input):
     is_prime(invalid_input)
     captured = capsys.readouterr()
-    assert captured.out == "Must provide integer\n"
+    assert captured.out == "Must provide natural number\n"
 
 def test_first_ten_prime(capsys):
     first_ten_prime()
