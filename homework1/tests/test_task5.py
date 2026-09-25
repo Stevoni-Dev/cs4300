@@ -20,47 +20,89 @@ invalid_book_lists = [
     [("Book", "Author"), (123, "Author")],
 ]
 
-valid_book_lists = [   
-    [("The Name of the Wind", "Patrick Rothfuss"),
-     ("The Wise Man's Fear", "Patrick Rothfuss"),
-     ("The Hobbit", "J.R.R. Tolkien")],
-    
-    [("1984", "George Orwell"),
-     ("Brave New World", "Aldous Huxley"),
-     ("Fahrenheit 451", "Ray Bradbury"),
-     ("Animal Farm", "George Orwell")],
-    
-    [("The Way of Kings", "Brandon Sanderson"),
-     ("Words of Radiance", "Brandon Sanderson"),
-     ("Oathbringer", "Brandon Sanderson"),
-     ("Rhythm of War", "Brandon Sanderson"),
-     ("Wind and Truth", "Brandon Sanderson")],
-    
-    [("Pride and Prejudice", "Jane Austen"),
-     ("Jane Eyre", "Charlotte Bronte"),
-     ("Wuthering Heights", "Emily Bronte")],
-    
-    [("The Great Gatsby", "F. Scott Fitzgerald"),
-     ("To Kill a Mockingbird", "Harper Lee"),
-     ("The Catcher in the Rye", "J.D. Salinger"),
-     ("Of Mice and Men", "John Steinbeck"),
-     ("The Grapes of Wrath", "John Steinbeck")],
-    
-    [("The Fellowship of the Ring", "J.R.R. Tolkien"),
-     ("The Two Towers", "J.R.R. Tolkien"),
-     ("The Return of the King", "J.R.R. Tolkien")],
-    
-    [("Red Rising", "Pierce Brown"),
-     ("Golden Son", "Pierce Brown"),
-     ("Morning Star", "Pierce Brown"),
-     ("Iron Gold", "Pierce Brown"),
-     ("Dark Age", "Pierce Brown"),
-     ("Light Bringer", "Pierce Brown")]
-]
+@pytest.mark.parametrize(
+    "favorite_book_list, expected_output",
+    [
+        (
+            [
+                ("The First Law", "Joe Abercrombie"),
+                ("The Lord of the Rings", "J.R.R. Tolkien"),
+                ("Red Rising", "Pierce Brown"),
+            ],
+            "The First Law\nThe Lord of the Rings\nRed Rising\n",
+        ),
+        (
+            [
+                ("Mistborn", "Brandon Sanderson"),
+                ("The Name of the Wind", "Patrick Rothfuss"),
+                ("Dune", "Frank Herbert"),
+            ],
+            "Mistborn\nThe Name of the Wind\nDune\n",
+        ),
+        (
+            [
+                ("1984", "George Orwell"),
+                ("Animal Farm", "George Orwell"),
+                ("Brave New World", "Aldous Huxley"),
+                ("Fahrenheit 451", "Ray Bradbury"),
+            ],
+            "1984\nAnimal Farm\nBrave New World\n",
+        ),
+        (
+            [
+                ("A", "Author A"),
+                ("B", "Author B"),
+                ("C", "Author C"),
+            ],
+            "A\nB\nC\n",
+        ),
+        (
+            [
+                ("The Very Long Book Title That Contains Many Words", "Author"),
+                ("Short", "Author"),
+                ("Another Book", "Author"),
+            ],
+            "The Very Long Book Title That Contains Many Words\nShort\nAnother Book\n",
+        ),
+        (
+            [
+                ("Book 1", "Author 1"),
+                ("Book 2", "Author 2"),
+                ("Book 3", "Author 3"),
+                ("Book 4", "Author 4"),
+                ("Book 5", "Author 5"),
+            ],
+            "Book 1\nBook 2\nBook 3\n",
+        ),
+        (
+            [
+                ("Harry Potter and the Sorcerer's Stone", "J.K. Rowling"),
+                ("The Hobbit", "J.R.R. Tolkien"),
+                ("The Way of Kings", "Brandon Sanderson"),
+                ("The Poppy War", "R.F. Kuang"),
+            ],
+            "Harry Potter and the Sorcerer's Stone\nThe Hobbit\nThe Way of Kings\n",
+        ),
+        (
+            [
+                ("Book With Numbers 123", "Author 1"),
+                ("Book-With-Symbols!", "Author 2"),
+                ("Book's Title", "Author 3"),
+            ],
+            "Book With Numbers 123\nBook-With-Symbols!\nBook's Title\n",
+        ),
+    ],
+)
+def test_print_first_three_book_titles_valid(
+    favorite_book_list, expected_output, capsys
+):
+    print_first_three_book_titles(favorite_book_list)
 
-@pytest.mark.parametrize("valid_list", valid_book_lists)
-def test_print_first_three_books_valid_input(valid_list):
-    assert print_first_three_book_titles(valid_list) == True
+    captured = capsys.readouterr()
+
+    assert captured.out == expected_output
+
+
 
 @pytest.mark.parametrize("invalid_list", invalid_book_lists)
 def test_print_first_three_books_invalid_input(invalid_list):
