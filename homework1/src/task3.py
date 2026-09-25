@@ -3,8 +3,7 @@ from math import sqrt
 # Check for negative, positive, or zero value of number
 def signum(number: int | float) -> str:
     if not (isinstance(number, int) or isinstance(number, float)) or isinstance(number, bool):
-        print("Must provide integer or floating number")
-        return
+        raise TypeError("Must provide integer or floating number")
     if number < 0:
         print("Number is negative")
     elif number > 0: 
@@ -15,8 +14,7 @@ def signum(number: int | float) -> str:
 # Checks if a number is prime
 def is_prime(number: int) -> bool:
     if not isinstance(number, int) or isinstance(number, bool):
-        print("Must provide natural number")
-        return
+        raise TypeError("Must provide natural number")
     # Based on algorithm, 1, 0 will flag as prime but it is not
     if number == 1 or number <= 0:
         return False

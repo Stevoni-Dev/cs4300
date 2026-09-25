@@ -5,8 +5,7 @@ favorite_books = [("The Blade Itself", "Joe Abercrombie"), ("Lord of the Rings",
 # From a list of tuples representing book and author, print the first three books on the list.
 def print_first_three_book_titles(favorite_book_list: list[tuple[str, str]]):
     if not isinstance(favorite_book_list, list):
-        print("Must provide a list of tuples representing books and authors")
-        return False
+        raise TypeError("Must provide a list of tuples representing books and authors")
     if not all(
             isinstance(item, tuple) and 
             len(item) == 2 and 
@@ -14,8 +13,7 @@ def print_first_three_book_titles(favorite_book_list: list[tuple[str, str]]):
             isinstance(item[1], str)
             for item in favorite_book_list
         ):
-        print("Must provide a list of tuples representing books and authors")
-        return False
+        raise TypeError("Must provide a list of tuples representing books and authors")
     first_three_books = [item[0] for item in favorite_book_list[0:3]]
     for book_title in first_three_books:
         print(book_title)

@@ -4,12 +4,10 @@ import re
 
 def get_content(file_name: str):
     if not isinstance(file_name, str):
-        print("Provide a string that points to a file name")
-        return False
+        raise TypeError("Provide a string that points to a file name")
     file_path = Path(__file__).resolve().parent / file_name
     if not file_path.is_file():
-        print("Provide an existing file")
-        return False
+        raise TypeError("Provide an existing file")
 
     with open(file_name, "r", encoding="utf-8") as file:
         content = file.read()
@@ -18,8 +16,7 @@ def get_content(file_name: str):
 
 def count_words_in_string(content: str):
     if not isinstance(content, str):
-        print("Provide string to evaluate")
-        return False
+        raise TypeError("Provide string to evaluate")
 
     # Only counting words comprised of letters
     word_count = re.findall(r"\b\w+(\'\w)?\b", content)

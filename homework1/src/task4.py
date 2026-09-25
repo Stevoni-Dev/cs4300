@@ -8,13 +8,11 @@ def calculate_discount(price, discount):
         and hasattr(discount, "__mul__")
         and hasattr(discount, "__truediv__")
         ):
-        print("Provide objects that can support division and multiplication")
-        return False
+        raise TypeError("Provide objects that can support division and multiplication")
+
     if price <= 0:
-        print("Invalid price amount")
-        return False
+        raise TypeError("Invalid price amount")
     if discount <= 0 or discount >= 100:
-        print("Invalid discount amount")
-        return False
+        raise TypeError("Invalid discount amount")
     price -= price * (discount / 100)
     return price
