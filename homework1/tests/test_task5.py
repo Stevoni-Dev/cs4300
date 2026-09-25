@@ -97,9 +97,7 @@ def test_print_first_three_book_titles_valid(
     favorite_book_list, expected_output, capsys
 ):
     print_first_three_book_titles(favorite_book_list)
-
     captured = capsys.readouterr()
-
     assert captured.out == expected_output
 
 

@@ -26,10 +26,9 @@ def test_signum_zero(capsys, valid_zero_value):
 
 @pytest.mark.parametrize("invalid_value", signum_invalid_inputs)
 def test_signum_incorrect_input(capsys, invalid_value):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         signum(invalid_value)
-        captured = capsys.readouterr()
-        assert captured.out == "Must provide integer or floating number\n"
+    assert str(exc_info.value) == "Must provide integer or floating number"
 
 prime_numbers = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
 non_prime_numbers = [item for item in range(0,31) if item not in prime_numbers]
@@ -48,10 +47,9 @@ def test_is_prime_with_non_prime_number(non_prime_number):
 
 @pytest.mark.parametrize("invalid_input", is_prime_invalid_inputs)
 def test_is_prime_with_invalid_input(capsys, invalid_input):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         is_prime(invalid_input)
-        captured = capsys.readouterr()
-        assert captured.out == "Must provide natural number\n"
+    assert str(exc_info.value) == "Must provide natural number"
 
 def test_first_ten_prime(capsys):
     first_ten_prime()

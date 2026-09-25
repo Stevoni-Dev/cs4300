@@ -13,11 +13,9 @@ def test_get_content_valid_file(mock_file, mock_exists):
 
 # Verifies that non-existing files return False, no longer providing mock decorator
 def test_get_content_non_existing_file(capsys):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         result = get_content("fake_path.txt")
-        captured = capsys.readouterr()
-        assert captured.out == "Provide an existing file\n"   
-        assert result == False
+    assert str(exc_info.value) == "Provide an existing file"   
 
 invalid_string_input = [
     None,
@@ -35,11 +33,9 @@ invalid_string_input = [
 
 @pytest.mark.parametrize("invalid_input", invalid_string_input)
 def test_get_content_invalid_input(capsys, invalid_input):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         result = get_content(invalid_input)
-        captured = capsys.readouterr()
-        assert captured.out == "Provide a string that points to a file name\n"   
-        assert result == False
+    assert str(exc_info.value) == "Provide a string that points to a file name"   
 
 def test_task6_script():
     content = get_content("../task6_read_me.txt")
@@ -74,8 +70,6 @@ def test_count_words_in_string(valid_input, actual_word_count):
 
 @pytest.mark.parametrize("invalid_input", invalid_string_input)
 def test_count_words_invalid_input(capsys, invalid_input):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         result = count_words_in_string(invalid_input)
-        captured = capsys.readouterr()
-        assert captured.out == "Provide string to evaluate\n"   
-        assert result == False
+    assert str(exc_info.value) == "Provide string to evaluate"

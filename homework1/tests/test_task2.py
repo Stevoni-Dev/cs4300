@@ -36,11 +36,9 @@ def test_add_numbers_valid_inputs(num1, num2, answer):
 ]
 )
 def test_add_numbers_invalid_input(capsys, num1, num2):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         result = add_numbers(num1, num2)
-        captured = capsys.readouterr()
-        assert captured.out == "Only provide integers\n"
-        assert result == False
+    assert str(exc_info.value) == "Only provide integers"
 
 @pytest.mark.parametrize(
     "number1, number2, answer",
@@ -80,12 +78,9 @@ def test_divide_numbers_valid_inputs(number1, number2, answer):
     ],
 )
 def test_divide_numbers_invalid_types(capsys, number1, number2):
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError) as exc_info:
         result = divide_numbers(number1, number2)
-        captured = capsys.readouterr()
-
-        assert captured.out == "Only provide integers or floats\n"
-        assert result == False
+    assert str(exc_info.value) == "Only provide integers or floats"
 
 @pytest.mark.parametrize(
     "number1, number2",
@@ -100,12 +95,9 @@ def test_divide_numbers_invalid_types(capsys, number1, number2):
     ],
 )
 def test_divide_numbers_zero_divisor(capsys, number1, number2):
-    with pytest.raises(TypeError):
-        result = divide_numbers(number1, number2)
-        captured = capsys.readouterr()
-
-        assert captured.out == "Cannot divide by zero\n"
-        assert result == False
+    with pytest.raises(TypeError) as exc_info:
+        divide_numbers(number1, number2)
+    assert str(exc_info.value) == "Cannot divide by zero"
 
 @pytest.mark.parametrize(
     "string, answer",
@@ -123,7 +115,6 @@ def test_divide_numbers_zero_divisor(capsys, number1, number2):
     ],
 )
 def test_string_upper_valid_inputs(string, answer):
-
     assert string_upper(string) == answer
 
 
@@ -147,7 +138,7 @@ def test_string_upper_invalid_input(capsys, string):
         result = string_upper(string)
         captured = capsys.readouterr()
 
-        assert captured.out == "Only provide strings\n"
+        assert captured.out == "Only provide strings"
         assert result == False
 
 @pytest.mark.parametrize(
@@ -191,5 +182,5 @@ def test_is_able_to_drive_invalid_input(capsys, age):
     with pytest.raises(TypeError):
         result = is_able_to_drive(age)
         captured = capsys.readouterr()
-        assert captured.error == "Only provide an integer age\n"
+        assert captured.error == "Only provide an integer age"
         assert result == False
