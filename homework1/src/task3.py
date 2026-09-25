@@ -35,20 +35,19 @@ def is_prime(number: int) -> bool:
 # Prints out the first ten prime numbers that appear.
 def first_ten_prime():
     prime_numbers = list()
-    number = 1
-    while len(prime_numbers) < 10:
-        if is_prime(number):
-            prime_numbers.append(number)
-        number += 1
+    for number in range(2, 30):
+    if is_prime(number):
+        primes.append(number)
 
     for value in prime_numbers:
         print(value)
 
 # Prints out the triangle value of 100
 def triangle_of_100():
-    numbers = list(range(1, 101))
     sum = 0
-    for number in numbers:
-        sum += number
+    count = 0
+    while count <= 100:
+        sum += count
+        count += 1
 
     return sum
