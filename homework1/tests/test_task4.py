@@ -31,7 +31,8 @@ def test_calculate_discount_valid(price, discount, expected):
     ],
 )
 def test_calculate_discount_invalid_price(price, discount):
-    assert calculate_discount(price, discount) is False
+    with pytest.raises(TypeError):
+        assert calculate_discount(price, discount) is False
 
 @pytest.mark.parametrize(
     "price, discount",
@@ -46,7 +47,8 @@ def test_calculate_discount_invalid_price(price, discount):
     ],
 )
 def test_calculate_discount_invalid_discount(price, discount):
-    assert calculate_discount(price, discount) is False
+    with pytest.raises(TypeError):    
+        assert calculate_discount(price, discount) is False
 
 @pytest.mark.parametrize(
     "price, discount",
@@ -61,4 +63,5 @@ def test_calculate_discount_invalid_discount(price, discount):
     ],
 )
 def test_calculate_discount_invalid_types(price, discount):
-    assert calculate_discount(price, discount) is False
+    with pytest.raises(TypeError):
+        assert calculate_discount(price, discount) is False

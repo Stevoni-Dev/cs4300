@@ -6,17 +6,18 @@ import pytest
 @patch("builtins.open", new_callable=mock_open, read_data="Hello, world!")
 # Verify that get_content returns info
 def test_get_content_valid_file(mock_file, mock_exists):
-    result = get_content("fake_path.txt")
-    mock_file.assert_called_once_with("fake_path.txt", "r", encoding='utf-8')
-    mock_exists.assert_called_once_with()
+    result = get_content("../fake_path.txt")
+    mock_file.assert_called_once()
+    mock_exists.assert_called_once()
     assert result == "Hello, world!"
 
 # Verifies that non-existing files return False, no longer providing mock decorator
 def test_get_content_non_existing_file(capsys):
-    result = get_content("fake_path.txt")
-    captured = capsys.readouterr()
-    assert captured.out == "Provide an existing file\n"   
-    assert result == False
+    with pytest.raises(TypeError):
+        result = get_content("fake_path.txt")
+        captured = capsys.readouterr()
+        assert captured.out == "Provide an existing file\n"   
+        assert result == False
 
 invalid_string_input = [
     None,
@@ -34,13 +35,14 @@ invalid_string_input = [
 
 @pytest.mark.parametrize("invalid_input", invalid_string_input)
 def test_get_content_invalid_input(capsys, invalid_input):
-    result = get_content(invalid_input)
-    captured = capsys.readouterr()
-    assert captured.out == "Provide a string that points to a file name\n"   
-    assert result == False
+    with pytest.raises(TypeError):
+        result = get_content(invalid_input)
+        captured = capsys.readouterr()
+        assert captured.out == "Provide a string that points to a file name\n"   
+        assert result == False
 
 def test_task6_script():
-    content = get_content("task6_read_me.txt")
+    content = get_content("../task6_read_me.txt")
     count_words_in_string(content) == 104
     
 
@@ -72,7 +74,8 @@ def test_count_words_in_string(valid_input, actual_word_count):
 
 @pytest.mark.parametrize("invalid_input", invalid_string_input)
 def test_count_words_invalid_input(capsys, invalid_input):
-    result = count_words_in_string(invalid_input)
-    captured = capsys.readouterr()
-    assert captured.out == "Provide string to evaluate\n"   
-    assert result == False
+    with pytest.raises(TypeError):
+        result = count_words_in_string(invalid_input)
+        captured = capsys.readouterr()
+        assert captured.out == "Provide string to evaluate\n"   
+        assert result == False

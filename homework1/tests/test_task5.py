@@ -106,7 +106,8 @@ def test_print_first_three_book_titles_valid(
 
 @pytest.mark.parametrize("invalid_list", invalid_book_lists)
 def test_print_first_three_books_invalid_input(invalid_list):
-    assert print_first_three_book_titles(invalid_list) == False
+    with pytest.raises(TypeError):
+        assert print_first_three_book_titles(invalid_list) == False
 
 def test_student_is_dictionary():
     assert isinstance(students, dict)

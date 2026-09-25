@@ -9,7 +9,7 @@ def get_content(file_name: str):
     if not file_path.is_file():
         raise TypeError("Provide an existing file")
 
-    with open(file_name, "r", encoding="utf-8") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         content = file.read()
     return content
 
@@ -22,5 +22,5 @@ def count_words_in_string(content: str):
     word_count = re.findall(r"\b\w+(\'\w)?\b", content)
     return len(word_count)
 
-file_content = get_content("task6_read_me.txt")
+file_content = get_content("../task6_read_me.txt")
 print(count_words_in_string(file_content))
