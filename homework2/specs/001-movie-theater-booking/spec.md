@@ -20,6 +20,7 @@
 - Q: Should anonymous requests to movie writes, booking creation, and booking-history reads all return the same 401 JSON error, while other forbidden requests return 403? → A: Return 401 with the same JSON error shape for anonymous protected requests; use 403 for other forbidden conditions such as invalid CSRF.
 - Q: For booking requests, should an unknown movie or seat return 404 Not Found, while a real seat that belongs to a different movie returns 400 Bad Request? → A: Unknown movies or seats return 404; a seat belonging to a different movie returns 400.
 - Q: May a signed-in user book multiple distinct seats for the same movie, with one booking per seat? → A: Yes. A user may book multiple distinct available seats; each seat has its own booking.
+- Q: How should the booking-history API order and paginate a user's bookings? → A: Return the newest bookings first and paginate at 20 bookings per page; an empty history returns an empty result list.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -75,8 +76,8 @@ As a signed-in user, I want to review my past and current bookings so that I can
 
 **Acceptance Scenarios**:
 
-1. **Given** a signed-in user has bookings, **When** the user opens booking history, **Then** each booking shows the movie, seat number, and booking date.
-2. **Given** a signed-in user has no bookings, **When** the user opens booking history, **Then** the application shows an informative empty state.
+1. **Given** a signed-in user has bookings, **When** the user opens booking history, **Then** each page contains at most 20 bookings ordered newest first and each booking shows the movie, seat number, and booking date.
+2. **Given** a signed-in user has no bookings, **When** the user requests booking history, **Then** the API returns an empty result list and the page shows an informative empty state.
 3. **Given** bookings belong to multiple users, **When** a user opens booking history, **Then** only that user's bookings are shown.
 4. **Given** a user is not signed in, **When** that user attempts to view booking history, **Then** the application requires sign-in and reveals no booking data.
 
@@ -140,6 +141,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous. An authenticated request rejected for another forbidden condition, including invalid CSRF, MUST return `403 Forbidden`.
 - **FR-015**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
 - **FR-016**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
+- **FR-017**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
 
 ### Quality Acceptance Scenarios
 

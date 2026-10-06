@@ -54,7 +54,9 @@ With the local server running:
 - Sign in, include the session cookie and CSRF token, then `POST /api/bookings/` with
   `movie` and `seat`; expect `201` for the first reservation.
 - Submit the same seat again; expect `409` and no second booking.
-- `GET /api/bookings/` returns only the signed-in user's history.
+- `GET /api/bookings/` returns only the signed-in user's history, newest first, with up
+   to 20 bookings per page; use `?page=2` for the next page. An account with no bookings
+   receives `count: 0` and `results: []`.
 - Authenticated `POST`, `PUT`, `PATCH`, and eligible `DELETE` requests to `/api/movies/`
   exercise movie CRUD; anonymous writes are rejected.
 

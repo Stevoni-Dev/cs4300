@@ -56,8 +56,11 @@ not part of the user-facing API in phase one; inventory is provisioned separatel
 
 Return the signed-in user's booking history only. Each item contains `id`, `movie`,
 `seat`, `booking_date`, plus read-only display details needed to render the movie title
-and seat number. Anonymous requests return the shared `401` error without returning
-booking data.
+and seat number. Results are ordered by `booking_date` newest first and use page-number
+pagination with 20 bookings per page, selected with the `page` query parameter. The
+response contains `count`, `next`, `previous`, and `results`. An empty history returns
+`count: 0` and `results: []`. Anonymous requests return the shared `401` error without
+returning booking data.
 
 ### `POST /api/bookings/`
 

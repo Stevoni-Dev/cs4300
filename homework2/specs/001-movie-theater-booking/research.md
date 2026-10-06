@@ -91,6 +91,16 @@
   the expected failure, implement the behavior, then add/update integration coverage
   for affected boundaries before refactoring.
 
+### Booking-history response
+
+- **Decision**: Return the signed-in user's bookings newest first in page-number pages
+  of 20, with `count`, `next`, `previous`, and `results` fields. Empty history returns
+  `count: 0` and an empty `results` list.
+- **Rationale**: Recent reservations appear first, and a bounded page keeps responses
+  predictable as history grows while retaining a straightforward API for the assignment.
+- **Alternatives considered**: Returning the entire history has unbounded response size;
+  oldest-first ordering hides the most recent booking from the initial page.
+
 ### DevEdu and Render commands
 
 - **Decision**: Run local development with Django's development server bound to
