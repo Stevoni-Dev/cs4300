@@ -14,6 +14,7 @@
 
 - Q: Should users book seats for a movie as a whole, or for a specific screening of that movie? → A: A movie is one bookable event with one seat inventory; multiple screenings are out of scope.
 - Q: How should users get the signed-in accounts needed to book seats and view booking history? → A: Phase one includes user registration and sign-in.
+- Q: Is movie catalog CRUD part of phase one or a later extension? → A: Movie catalog CRUD is a goal for phase one and is not an extension.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -69,6 +70,34 @@ As a signed-in user, I want to review my past and current bookings so that I can
 3. **Given** bookings belong to multiple users, **When** a user opens booking history, **Then** only that user's bookings are shown.
 4. **Given** a user is not signed in, **When** that user attempts to view booking history, **Then** the application requires sign-in and reveals no booking data.
 
+---
+
+### User Story 4 - Maintain the Movie Catalog (Priority: P2)
+
+As a signed-in user, I want to create, update, and remove movie listings through the
+movie API so that the phase-one catalog can be maintained without introducing another
+user role.
+
+**Why this priority**: Movie catalog maintenance is required in phase one, while seat
+booking remains the application's primary user value.
+
+**Independent Test**: A signed-in user can create a movie, retrieve and update it, and
+delete it when it has no booking history; public movie listings reflect each change.
+
+**Acceptance Scenarios**:
+
+1. **Given** a signed-in user submits valid movie details, **When** the user creates a
+  movie through the movie API, **Then** the movie is stored and appears in listings.
+2. **Given** a movie exists, **When** a signed-in user submits valid changes through
+  the movie API, **Then** the updated details appear in API responses and listings.
+3. **Given** a movie has no booking history, **When** a signed-in user deletes it
+  through the movie API, **Then** it is removed from movie listings.
+4. **Given** a movie has booking history, **When** a signed-in user attempts to delete
+  it, **Then** deletion is rejected and its booking history remains available.
+5. **Given** a visitor is not signed in, **When** the visitor attempts to create,
+  update, or delete a movie through the movie API, **Then** the request is rejected
+  and the catalog remains unchanged.
+
 ### Edge Cases
 
 - The movie listing is empty or a movie has no seats in its inventory.
@@ -95,6 +124,7 @@ As a signed-in user, I want to review my past and current bookings so that I can
 user-friendly interface with clear seat states, booking confirmations, useful error feedback, keyboard operation, and layouts usable at supported viewport sizes.
 - **FR-009**: The application MUST document its modules and externally used behavior in source code, and MUST keep the README current with setup, operation, and user-visible behavior as those details change.
 - **FR-010**: Tests for new behavior MUST follow test-driven development, include unit tests, and include integration tests when behavior crosses component boundaries. Every test MUST be marked as exactly one of `unit` or `integration`.
+- **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
 
 ### Quality Acceptance Scenarios
 
@@ -124,6 +154,6 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 
 - Each movie represents one bookable event in phase one and has one seat inventory. Multiple showtimes, screenings, and auditoriums are out of scope.
 - The application provides user registration and sign-in in phase one. The account details and sign-in method are not defined by this feature.
-- Movie and seat listings are already populated; creating or administrating catalog entries is outside the single-user-role phase.
+- Movie catalog CRUD is in scope for phase one through the movie API and uses the existing single user role; no separate administrator role or movie-management page is introduced. Seat inventory is provisioned separately and is not managed through this phase-one API.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.
 - The application provides a user-facing interface for browsing movies, selecting seats, booking, and reviewing booking history.
