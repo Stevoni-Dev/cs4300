@@ -8,6 +8,12 @@
 
 **Input**: User description: "Develop homework2, is a Movie Theater Booking application. Allowing users to view movie listings, book seats, and check booking history. For first phase there will only be a user role. The following items will exist in the database: Movies (title, description, release date, duration), Seat (seat number, booking status), Booking (movie, seat, user, booking date). Users cannot book a seats that have been reserved by another user."
 
+## Clarifications
+
+### Session 2026-10-06
+
+- Q: Should users book seats for a movie as a whole, or for a specific screening of that movie? → A: A movie is one bookable event with one seat inventory; multiple screenings are out of scope.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Browse Movies and Seat Availability (Priority: P1)
@@ -97,7 +103,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 ### Key Entities *(include if feature involves data)*
 
 - **Movie**: A listed movie with a title, description, release date, and duration.
-- **Seat**: A numbered seat with a booking status for the movie being booked.
+- **Seat**: A numbered seat in a movie's single seat inventory, with its current booking status.
 - **Booking**: A reservation linking one movie, one seat, one user, and the booking date.
 - **User**: A signed-in person who can make bookings and view only their own booking history. Phase one has one user role.
 
@@ -113,7 +119,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 
 ## Assumptions
 
-- Each movie represents one bookable event in phase one, and its seat inventory is reserved independently. Multiple showtimes, screenings, and auditoriums are out of scope until a screening concept is introduced.
+- Each movie represents one bookable event in phase one and has one seat inventory. Multiple showtimes, screenings, and auditoriums are out of scope.
 - Users have individual signed-in accounts. The specific sign-in method is not defined by this feature.
 - Movie and seat listings are already populated; creating or administrating catalog entries is outside the single-user-role phase.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.
