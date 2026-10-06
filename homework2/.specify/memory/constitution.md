@@ -1,50 +1,63 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+Version change: 1.0.0 -> 1.1.0
+Modified principles: IV. Verified API Behavior -> IV. Test-Driven Development and Test Classification.
+Added sections: None.
+Removed sections: None.
+Follow-up TODO: Confirm the original ratification date.
+-->
+
+# Homework 2 Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. RESTful API Contracts
+The application MUST expose a resource-oriented REST API using appropriate HTTP methods,
+status codes, and media types. Endpoints MUST validate inputs and return consistent,
+documented response and error shapes. API contract changes MUST be reflected in source
+documentation and the README.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+### II. Source Code Documentation
+Source code MUST document modules and externally used functions, types, and API handlers
+with their purpose, inputs, outputs, and observable behavior. Comments MUST explain
+non-obvious decisions or constraints and MUST be updated when the behavior changes.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### III. README as Maintained Documentation
+The README MUST describe the application's purpose, setup, configuration, execution, and
+available API behavior. Any change that affects those instructions or the API contract
+MUST update the README in the same change.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### IV. Test-Driven Development and Test Classification
+Test-driven development is NON-NEGOTIABLE for new behavior: contributors MUST write a
+test first, confirm that it fails for the expected reason, implement the behavior, and
+then refactor while keeping the test passing. Every new behavior MUST have a unit test.
+Integration tests MUST also cover behavior that crosses component boundaries, including
+API routing, persistence, authentication, or serialization, when those boundaries are
+affected. Every test MUST be explicitly marked as exactly one of `unit` or `integration`.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### V. Secure Handling of Requests
+The application MUST treat request data as untrusted, validate it at the API boundary,
+and enforce authorization before exposing or changing protected resources. Secrets MUST
+not be stored in source code or returned in API responses.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+## API and Security Constraints
+API behavior MUST remain consistent across endpoints, especially for validation failures
+and not-found responses. Breaking contract changes MUST be identified in documentation
+and accompanied by a compatibility or migration note. Configuration and secrets MUST be
+provided outside source code.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
-
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
-
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+## Development Workflow and Quality Gates
+Before completing a change, contributors MUST run the relevant unit and integration
+tests and update source documentation and the README wherever behavior or setup has
+changed. Reviewers MUST check the API contract, security boundaries, test coverage, test
+classification, and documentation impact. New dependencies and abstractions MUST be
+limited to what the requirement needs.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
+This constitution governs project decisions and MUST be checked during planning and code
+review. Amendments MUST be reviewed, recorded in this file, and follow semantic versioning:
+MAJOR for incompatible governance changes, MINOR for new or materially expanded rules, and
+PATCH for clarifications that do not change requirements. Every amendment MUST update the
+last-amended date. The original ratification date remains unchanged.
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
-
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-06
