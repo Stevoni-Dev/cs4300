@@ -78,6 +78,10 @@ movie or other request fields are invalid, `403` for invalid CSRF on an authenti
 session, and `409` when another request has already reserved the seat. A failed request
 creates no booking.
 
+Each booking request reserves exactly one seat. A signed-in user may submit multiple
+booking requests for different available seats for the same movie. A seat already
+reserved by any user cannot be booked again.
+
 Booking update and deletion are not exposed in phase one, preserving booking history.
 
 ## Shared error expectations

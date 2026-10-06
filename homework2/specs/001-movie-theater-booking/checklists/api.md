@@ -29,7 +29,7 @@
 
 - [x] CHK012 Do requirements define one unambiguous conflict outcome when two users attempt to reserve the same seat concurrently? [Coverage, Spec §FR-004, §FR-005]
 - [x] CHK013 Are requests for unknown movies, unknown seats, and seats belonging to a different movie assigned distinct, understandable outcomes? [Coverage, Spec §FR-002–FR-005, §FR-015]
-- [ ] CHK014 Do requirements state whether a user may book multiple distinct seats for the same movie, or whether duplicate bookings by the same user are restricted? [Gap, Spec §FR-003–FR-005]
+- [x] CHK014 Do requirements state whether a user may book multiple distinct seats for the same movie, or whether duplicate bookings by the same user are restricted? [Clarity, Spec §FR-003–FR-005, §FR-016]
 - [ ] CHK015 Are the booking-history ordering, pagination, and empty-result expectations specified sufficiently for clients? [Gap, Spec §FR-006]
 
 ## Acceptance Criteria and Traceability

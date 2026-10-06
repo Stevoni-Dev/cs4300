@@ -52,6 +52,8 @@ Invariants:
 - Booking creation and the seat status update are one atomic operation. A failure in
   either write rolls back both.
 - The one-to-one seat relation and the seat's reserved state prevent a second booking.
+- A user may have multiple bookings for the same movie, provided each booking is for a
+  different available seat; there is no per-user/per-movie booking cap.
 - Booking history queries are filtered by the authenticated user before serialization.
 
 ## User

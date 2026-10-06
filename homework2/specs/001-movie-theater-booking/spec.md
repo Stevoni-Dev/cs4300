@@ -19,6 +19,7 @@
 - Q: When sign-in fails because the account is unknown or its password is incorrect, should the user see the specific cause or the same message for both? → A: Show the same generic sign-in failure message for both cases and do not create an authenticated session.
 - Q: Should anonymous requests to movie writes, booking creation, and booking-history reads all return the same 401 JSON error, while other forbidden requests return 403? → A: Return 401 with the same JSON error shape for anonymous protected requests; use 403 for other forbidden conditions such as invalid CSRF.
 - Q: For booking requests, should an unknown movie or seat return 404 Not Found, while a real seat that belongs to a different movie returns 400 Bad Request? → A: Unknown movies or seats return 404; a seat belonging to a different movie returns 400.
+- Q: May a signed-in user book multiple distinct seats for the same movie, with one booking per seat? → A: Yes. A user may book multiple distinct available seats; each seat has its own booking.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -60,6 +61,7 @@ confirmation, and see that seat become reserved.
 9. **Given** a user is not signed in, **When** that user attempts to book a seat, **Then** the application requires the user to sign in and creates no booking.
 10. **Given** a selected movie has no available seats, **When** a user views its seats, **Then** the application clearly indicates that no seats are available and prevents booking.
 11. **Given** a booking request references an unknown movie or seat, **When** the request is submitted, **Then** the API returns `404 Not Found`; **Given** the movie and seat both exist but the seat belongs to a different movie, **When** the request is submitted, **Then** the API returns `400 Bad Request` and creates no booking.
+12. **Given** a signed-in user has booked one seat for a movie and another distinct seat is available, **When** the user books the other seat, **Then** a separate booking is created for that seat; **Given** the user or another user attempts to book an already-reserved seat, **When** the request is submitted, **Then** the booking is rejected and no duplicate booking is created.
 
 ---
 
@@ -137,6 +139,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
 - **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous. An authenticated request rejected for another forbidden condition, including invalid CSRF, MUST return `403 Forbidden`.
 - **FR-015**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
+- **FR-016**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
 
 ### Quality Acceptance Scenarios
 
