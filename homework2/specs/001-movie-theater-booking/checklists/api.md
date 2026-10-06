@@ -15,7 +15,7 @@
 - [x] CHK003 Are seat inventory creation, initial provisioning, and ownership rules defined well enough to make movie-scoped availability usable? [Gap, Spec §FR-002, Assumptions]
 - [x] CHK004 Are booking request fields, server-owned fields, and the relationship between a seat and its movie explicitly specified? [Completeness, Spec §FR-003, §FR-004]
 - [x] CHK005 Are success and failure outcomes specified for movie listing, detail, create, update, and delete operations? [Completeness, Spec §FR-001, §FR-011]
-- [ ] CHK006 Are API-level requirements for registration and sign-in, including invalid credentials and duplicate account details, defined or intentionally delegated? [Gap, Spec §FR-007]
+- [x] CHK006 Are API-level requirements for registration and sign-in, including invalid credentials and duplicate account details, defined or intentionally delegated? [Completeness, Spec §FR-007, §FR-012, §FR-013]
 
 ## Requirement Clarity and Consistency
 

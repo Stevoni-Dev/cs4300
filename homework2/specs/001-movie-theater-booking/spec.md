@@ -15,6 +15,8 @@
 - Q: Should users book seats for a movie as a whole, or for a specific screening of that movie? → A: A movie is one bookable event with one seat inventory; multiple screenings are out of scope.
 - Q: How should users get the signed-in accounts needed to book seats and view booking history? → A: Phase one includes user registration and sign-in.
 - Q: Is movie catalog CRUD part of phase one or a later extension? → A: Movie catalog CRUD is a goal for phase one and is not an extension.
+- Q: If registration details are invalid or the account identifier is already in use, what should the user see, and should an account be created? → A: Show specific errors for every failure, including when the identifier is already registered; create no account.
+- Q: When sign-in fails because the account is unknown or its password is incorrect, should the user see the specific cause or the same message for both? → A: Show the same generic sign-in failure message for both cases and do not create an authenticated session.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -47,11 +49,14 @@ confirmation, and see that seat become reserved.
 
 1. **Given** a visitor does not have an account, **When** the visitor registers with valid account details, **Then** the application creates a user account that can sign in with the single user role.
 2. **Given** a registered user provides valid sign-in details, **When** the user signs in, **Then** the application recognizes the user as signed in.
-3. **Given** a signed-in user selects an available seat for a movie, **When** the user confirms the booking, **Then** one booking is recorded for that user, movie, and seat, and the seat is shown as reserved.
-4. **Given** a seat has already been reserved by another user, **When** a user attempts to book it, **Then** the application rejects the booking, explains that the seat is no longer available, and does not create another booking.
-5. **Given** two users attempt to reserve the same available seat at nearly the same time, **When** both requests are processed, **Then** no more than one booking succeeds and the other user is told the seat is unavailable.
-6. **Given** a user is not signed in, **When** that user attempts to book a seat, **Then** the application requires the user to sign in and creates no booking.
-7. **Given** a selected movie has no available seats, **When** a user views its seats, **Then** the application clearly indicates that no seats are available and prevents booking.
+3. **Given** a visitor submits missing or invalid registration details, **When** registration is attempted, **Then** the application identifies the invalid or missing details and creates no account.
+4. **Given** a visitor submits an account identifier already used by another account, **When** registration is attempted, **Then** the application identifies the duplicate identifier and creates no account.
+5. **Given** a user submits an unknown account or an incorrect password, **When** sign-in is attempted, **Then** the application shows the same generic failure message for either cause and creates no authenticated session.
+6. **Given** a signed-in user selects an available seat for a movie, **When** the user confirms the booking, **Then** one booking is recorded for that user, movie, and seat, and the seat is shown as reserved.
+7. **Given** a seat has already been reserved by another user, **When** a user attempts to book it, **Then** the application rejects the booking, explains that the seat is no longer available, and does not create another booking.
+8. **Given** two users attempt to reserve the same available seat at nearly the same time, **When** both requests are processed, **Then** no more than one booking succeeds and the other user is told the seat is unavailable.
+9. **Given** a user is not signed in, **When** that user attempts to book a seat, **Then** the application requires the user to sign in and creates no booking.
+10. **Given** a selected movie has no available seats, **When** a user views its seats, **Then** the application clearly indicates that no seats are available and prevents booking.
 
 ---
 
@@ -125,6 +130,8 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-009**: The application MUST document its modules and externally used behavior in source code, and MUST keep the README current with setup, operation, and user-visible behavior as those details change.
 - **FR-010**: Tests for new behavior MUST follow test-driven development, include unit tests, and include integration tests when behavior crosses component boundaries. Every test MUST be marked as exactly one of `unit` or `integration`.
 - **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
+- **FR-012**: Registration MUST reject missing or invalid details and identifiers already associated with an account, return specific errors identifying the problem, and create no account when registration fails.
+- **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
 
 ### Quality Acceptance Scenarios
 
