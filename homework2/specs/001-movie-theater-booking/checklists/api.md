@@ -36,7 +36,7 @@
 
 - [x] CHK016 Can each externally observable API requirement be mapped to an acceptance scenario with explicit request conditions and response/data outcomes? [Acceptance Criteria, Spec §FR-001–FR-007, User Stories 1–4]
 - [x] CHK017 Are measurable success criteria defined for API correctness and authorization, beyond the current movie-display, booking-conflict, and history-privacy outcomes? [Measurability, Spec §SC-001–SC-005]
-- [ ] CHK018 Are API contract requirements kept aligned with the movie CRUD scope, single-role permission model, and delete-preserves-booking-history rule? [Consistency, Spec §FR-007, §FR-011]
+- [x] CHK018 Are API contract requirements kept aligned with the movie CRUD scope, single-role permission model, and delete-preserves-booking-history rule? [Consistency, Spec §FR-007, §FR-011]
 
 ## Notes
 
