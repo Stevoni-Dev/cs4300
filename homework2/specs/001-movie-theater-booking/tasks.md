@@ -151,6 +151,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - [ ] T046 Run `python manage.py test --tag=unit`, `python manage.py test --tag=integration`, and `python manage.py behave --tags=integration`; confirm every Django test has exactly one classification and every Behave scenario is integration-tagged.
 - [ ] T047 Follow `specs/001-movie-theater-booking/quickstart.md` from a clean DevEdu environment, including migrations and `python manage.py runserver 0.0.0.0:3000`; update `README.md` if any setup or expected result differs.
 - [ ] T048 Validate Render deployment and data persistence using `render.yaml`; verify restart retains the SQLite database on the mounted persistent disk and keep deployment single-instance.
+- [ ] T049 Run the SC-004 usability evaluation after T045: prepare a movie with an available seat and a test account, ask one first-time participant to book an available seat without hints, and record independent completion of browsing, seat identification, and booking plus any observed blockers; pass when all three steps are completed independently.
 
 ---
 

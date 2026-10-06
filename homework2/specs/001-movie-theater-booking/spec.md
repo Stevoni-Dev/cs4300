@@ -21,6 +21,7 @@
 - Q: For booking requests, should an unknown movie or seat return 404 Not Found, while a real seat that belongs to a different movie returns 400 Bad Request? → A: Unknown movies or seats return 404; a seat belonging to a different movie returns 400.
 - Q: May a signed-in user book multiple distinct seats for the same movie, with one booking per seat? → A: Yes. A user may book multiple distinct available seats; each seat has its own booking.
 - Q: How should the booking-history API order and paginate a user's bookings? → A: Return the newest bookings first and paginate at 20 bookings per page; an empty history returns an empty result list.
+- Q: How should SC-004 be evaluated for this lightweight project? → A: Use one first-time participant and pass only if they independently browse movies, identify an available seat, and complete a booking; record completion and observed blockers.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -164,7 +165,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **SC-001**: 100% of listed movies display the title, description, release date, and duration provided for that movie.
 - **SC-002**: For any seat and movie, two competing booking attempts result in no more than one successful booking.
 - **SC-003**: 100% of booking-history results belong to the signed-in user, and each result displays its movie, seat number, and booking date.
-- **SC-004**: At least 90% of first-time usability-test participants can browse movies, identify an available seat, and complete a booking without assistance.
+- **SC-004**: The one first-time usability-test participant (1/1) can browse movies, identify an available seat, and complete a booking without assistance. For the evaluation, prepare a movie with an available seat and a test account, give the participant only the goal of booking an available seat, provide no hints, and record whether each step is completed independently and any observed blockers.
 - **SC-005**: Users receive a clear confirmation for successful bookings and an actionable unavailable-seat message when a booking cannot be completed.
 
 ## Assumptions
