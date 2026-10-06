@@ -24,9 +24,9 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 **Purpose**: Create the Django project and reproducible local environment.
 
 - [ ] T001 Create Django project package `movie_theater_booking/` and root `manage.py` per `plan.md`.
-- [ ] T002 Add pinned Django, Django REST Framework, Behave-Django, Bootstrap/static, Gunicorn, and WhiteNoise dependencies to `requirements.txt`.
-- [ ] T003 Add environment-variable examples for `SECRET_KEY`, `DEBUG`, allowed hosts, trusted CSRF origins, and SQLite database path in `.env.example`.
-- [ ] T004 Configure `movie_theater_booking/settings.py` for the `bookings` app, Django auth, DRF, templates, static assets, and environment-driven SQLite settings; add root URL and WSGI/ASGI wiring in `movie_theater_booking/urls.py`, `movie_theater_booking/wsgi.py`, and `movie_theater_booking/asgi.py`.
+- [ ] T002 Add pinned Django, Django REST Framework, Behave-Django, Bootstrap/static, Gunicorn, WhiteNoise, `dj-database-url`, and Psycopg dependencies to `requirements.txt`.
+- [ ] T003 Add environment-variable examples for `SECRET_KEY`, `DEBUG`, allowed hosts, trusted CSRF origins, local SQLite path, and the Render `DATABASE_URL` setting in `.env.example` without including credentials.
+- [ ] T004 Configure `movie_theater_booking/settings.py` for the `bookings` app, Django auth, DRF, templates, static assets, local SQLite and PostgreSQL settings parsed from `DATABASE_URL` with `dj-database-url`; add root URL and WSGI/ASGI wiring in `movie_theater_booking/urls.py`, `movie_theater_booking/wsgi.py`, and `movie_theater_booking/asgi.py`.
 
 ---
 
@@ -146,12 +146,12 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 **Purpose**: Complete documentation, deployment readiness, accessibility, and cross-story validation.
 
 - [ ] T043 [P] Document public models, serializers, viewsets, booking service, and page handlers in `bookings/models.py`, `bookings/serializers.py`, `bookings/api.py`, `bookings/services.py`, and `bookings/views.py`; update `README.md` with setup, DevEdu port 3000, tests, API routes, Render deployment, and an accurate assignment-required AI-use disclosure.
-- [ ] T044 [P] Add Render deployment configuration in `render.yaml` for Gunicorn, static collection, migrations, environment settings, and persistent SQLite disk at `/var/data`; do not configure multiple service instances.
+- [ ] T044 [P] Add Render deployment configuration in `render.yaml` for Gunicorn, static collection, startup migrations, environment settings, and a managed PostgreSQL database connected through `DATABASE_URL`; do not configure a persistent SQLite disk.
 - [ ] T045 [P] Review Bootstrap templates in `bookings/templates/bookings/` against keyboard access, visible focus, clear status/error feedback, responsive supported viewports, and common base navigation; fix requirement gaps.
 - [ ] T050 After T042, refactor the auth-error integration tests in `bookings/tests/integration/test_auth_errors.py` to remove T005's test-only view/URL fixture and exercise the real protected routes: anonymous booking creation and booking-history requests, plus anonymous movie create/update/delete requests, must return `401` with the same JSON error shape; authenticated invalid-CSRF booking and movie-write requests must return `403`. Complete this before T046.
 - [ ] T046 Run `python manage.py test --tag=unit`, `python manage.py test --tag=integration`, and `python manage.py behave --tags=integration`; confirm every Django test has exactly one classification and every Behave scenario is integration-tagged.
 - [ ] T047 Follow `specs/001-movie-theater-booking/quickstart.md` from a clean DevEdu environment, including migrations and `python manage.py runserver 0.0.0.0:3000`; update `README.md` if any setup or expected result differs.
-- [ ] T048 Validate Render deployment and data persistence using `render.yaml`; verify restart retains the SQLite database on the mounted persistent disk and keep deployment single-instance.
+- [ ] T048 Validate Render cold-start readiness using `render.yaml`; verify the app is ready within the configured startup/readiness window, create a booking, restart the app service, and confirm the booking remains in the user's history through PostgreSQL.
 - [ ] T049 Run the SC-004 usability evaluation after T045: prepare a movie with an available seat and a test account, ask one first-time participant to book an available seat without hints, and record independent completion of browsing, seat identification, and booking plus any observed blockers; pass when all three steps are completed independently.
 
 ---

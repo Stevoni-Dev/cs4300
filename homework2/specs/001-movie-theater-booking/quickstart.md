@@ -4,7 +4,7 @@
 
 - Python 3.12 and `pip`
 - A terminal in the repository root
-- For Render deployment: a Render service plan/account supporting a persistent disk
+- For Render deployment: a Render account with access to a managed PostgreSQL database
 
 ## Local development in DevEdu
 
@@ -64,16 +64,14 @@ controls, empty states, and clear success/conflict feedback.
 
 ## Render deployment validation
 
-1. Configure a Render web service from `render.yaml` and attach its persistent disk at
-   `/var/data`.
+1. Configure the Render web service and managed PostgreSQL database from `render.yaml`;
+   provide the database connection through the `DATABASE_URL` environment variable.
 2. Set `SECRET_KEY`, `DEBUG=False`, allowed hosts, and trusted CSRF origins as Render
-   environment variables. Never commit production secrets.
+   environment variables. Never commit production secrets or database credentials.
 3. Build installs dependencies and runs `collectstatic`; release/start setup applies
    migrations and starts Gunicorn using `movie_theater_booking.wsgi:application`.
-4. Confirm `/`, `/api/movies/`, static assets, sign-in, and a booking work after a
-   service restart. Verify the database remains on the mounted disk.
-5. Keep exactly one application instance while SQLite is in use; do not scale this
-   service horizontally.
+4. Confirm the cold-started service becomes ready within its configured startup/readiness window. Create a booking, restart the app service, and verify the booking remains in the signed-in user's history.
+5. Keep the assignment deployment to one application instance; PostgreSQL provides the persistent shared database.
 
 ## Documentation check
 

@@ -42,25 +42,22 @@
   at-most-one-booking rule at the persistence boundary. SQLite does not provide
   effective row-level `select_for_update()` locking, so correctness must not rely on it.
 - **Alternatives considered**: A pre-check followed by an unconditional insert is
-  vulnerable to two requests both observing an available seat. A distributed lock or
-  switching databases exceeds the requested SQLite and assignment scope.
+  vulnerable to two requests both observing an available seat. A distributed lock adds complexity without improving on conditional database writes and uniqueness constraints.
 
-### SQLite on Render
+### PostgreSQL on Render
 
-- **Decision**: Read the SQLite database path from an environment variable, use a
-  project-local database for development, and mount a Render persistent disk at
-  `/var/data` for the deployed database. Deploy one web-service instance.
-- **Rationale**: A Render service's ordinary filesystem is ephemeral; a SQLite file
-  there can be lost on redeploy or restart. A persistent disk preserves the requested
-  database across restarts, while a single instance avoids unsupported shared-file
-  concurrency across replicas.
-- **Alternatives considered**: PostgreSQL is a better multi-instance production
-  database but conflicts with the explicit SQLite requirement. An ephemeral SQLite
-  file is not acceptable for retaining booking history.
-- **Operational constraint**: Confirm the course's Render account supports a persistent
-  disk and the selected service plan before deployment. If not, the SQLite-on-Render
-  requirement cannot provide durable production data without changing the storage
-  requirement.
+- **Decision**: Use SQLite for local development and a managed PostgreSQL database for
+  the Render deployment. Configure the app's PostgreSQL connection through the
+  `DATABASE_URL` environment variable, using `dj-database-url` to parse it and Psycopg
+  as the PostgreSQL driver.
+- **Rationale**: PostgreSQL preserves movies, seats, users, and bookings across Render
+  service restarts while allowing the app service to cold-start within its configured
+  readiness window.
+- **Alternatives considered**: A SQLite file on Render's ephemeral filesystem can be
+  lost on restart; using a persistent disk for SQLite is not the selected deployment
+  approach.
+- **Operational constraint**: Keep database credentials in Render environment
+  configuration; never commit them to source or `.env.example`.
 
 ### Django templates, Bootstrap, and shared data
 

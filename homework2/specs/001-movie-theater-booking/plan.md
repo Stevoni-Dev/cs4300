@@ -7,8 +7,8 @@ the planning request in this session.
 
 ## Summary
 
-Build a Django application named `movie_theater_booking` with a `bookings` app, SQLite,
-and Django REST Framework. DRF serializers and viewsets expose movie CRUD, movie-scoped
+Build a Django application named `movie_theater_booking` with a `bookings` app, SQLite
+for local development, PostgreSQL on Render, and Django REST Framework. DRF serializers and viewsets expose movie CRUD, movie-scoped
 seat availability, and authenticated booking creation/history. Django template pages
 use the same ORM models and booking service as the API, with Bootstrap for the UI. Seat
 reservation is atomic and protected by database uniqueness constraints. The plan
@@ -25,9 +25,9 @@ cannot be deleted, preserving reservation records.
 
 **Language/Version**: Python 3.12
 
-**Primary Dependencies**: Django 5.2 LTS, Django REST Framework, Behave-Django, Bootstrap 5.3, Gunicorn, WhiteNoise
+**Primary Dependencies**: Django 5.2 LTS, Django REST Framework, Behave-Django, Bootstrap 5.3, Gunicorn, WhiteNoise, `dj-database-url`, Psycopg
 
-**Storage**: SQLite; local project database and a Render persistent disk in deployment
+**Storage**: SQLite for local development; managed PostgreSQL on Render via `DATABASE_URL`
 
 **Testing**: Django `TestCase`/DRF `APITestCase` tagged `unit` or `integration`; include a transaction-backed integration test that submits synchronized competing booking requests on separate database connections and verifies one success, one conflict, and exactly one booking. Behave-Django scenarios are tagged `@integration`.
 
@@ -37,7 +37,7 @@ cannot be deleted, preserving reservation records.
 
 **Performance Goals**: For the assignment-scale catalog, movie and seat listings and booking history should render in one request without per-row query growth; no throughput SLO was specified.
 
-**Constraints**: SQLite writes are serialized; Render SQLite data must reside on a persistent disk and the service must remain a single instance. Mutating session-authenticated API requests require CSRF protection. API and HTML must use the same data and reservation rules.
+**Constraints**: Local SQLite writes are serialized. Render uses PostgreSQL so data persists across service restarts; the app must connect and complete startup migrations during cold start within the configured readiness window. Mutating session-authenticated API requests require CSRF protection. API and HTML must use the same data and reservation rules.
 
 **Scale/Scope**: One user role; one seat inventory per movie; no screenings, payments, booking cancellation, or horizontally scaled application instances.
 

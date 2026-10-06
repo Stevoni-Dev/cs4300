@@ -23,6 +23,7 @@
 - Q: How should the booking-history API order and paginate a user's bookings? → A: Return the newest bookings first and paginate at 20 bookings per page; an empty history returns an empty result list.
 - Q: How should SC-004 be evaluated for this lightweight project? → A: Use one first-time participant and pass only if they independently browse movies, identify an available seat, and complete a booking; record completion and observed blockers.
 - Q: Is deployment to Render part of this project? → A: Yes. Render is a deployment target, and deployment is in scope for this project.
+- Q: How should Render deployments handle application data across cold starts and restarts? → A: Use PostgreSQL for the Render deployment so database records persist across restarts.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -144,7 +145,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-015**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
 - **FR-016**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
 - **FR-017**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
-- **FR-018**: The project MUST deploy the application to Render and provide deployment configuration and instructions. Application data MUST remain available after a service restart.
+- **FR-018**: The project MUST deploy the application to Render and provide deployment configuration and instructions. The application MUST become ready to serve its primary page and API within the configured startup/readiness window, and application data MUST remain available after a service restart.
 
 ### Quality Acceptance Scenarios
 
@@ -169,7 +170,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **SC-003**: 100% of booking-history results belong to the signed-in user, and each result displays its movie, seat number, and booking date.
 - **SC-004**: The one first-time usability-test participant (1/1) can browse movies, identify an available seat, and complete a booking without assistance. For the evaluation, prepare a movie with an available seat and a test account, give the participant only the goal of booking an available seat, provide no hints, and record whether each step is completed independently and any observed blockers.
 - **SC-005**: Users receive a clear confirmation for successful bookings and an actionable unavailable-seat message when a booking cannot be completed.
-- **SC-006**: The deployed application responds at its configured public URL, and a booking made before a service restart remains available in booking history afterward.
+- **SC-006**: After a cold start, the deployed application responds at its configured public URL within the configured startup/readiness window, and a booking made before a service restart remains available in booking history afterward.
 
 ## Assumptions
 
@@ -177,5 +178,6 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - The application provides user registration and sign-in in phase one. The account details and sign-in method are not defined by this feature.
 - Movie catalog CRUD is in scope for phase one through the movie API and uses the existing single user role; no separate administrator role or movie-management page is introduced. Seat inventory is provisioned separately and is not managed through this phase-one API.
 - Render is a phase-one deployment target; deployment configuration, instructions, and validation are in scope.
+- Render deployment uses PostgreSQL so movie, seat, user, and booking data persist across service restarts; local development may use SQLite.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.
 - The application provides a user-facing interface for browsing movies, selecting seats, booking, and reviewing booking history.
