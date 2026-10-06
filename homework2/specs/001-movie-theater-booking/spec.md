@@ -17,6 +17,7 @@
 - Q: Is movie catalog CRUD part of phase one or a later extension? → A: Movie catalog CRUD is a goal for phase one and is not an extension.
 - Q: If registration details are invalid or the account identifier is already in use, what should the user see, and should an account be created? → A: Show specific errors for every failure, including when the identifier is already registered; create no account.
 - Q: When sign-in fails because the account is unknown or its password is incorrect, should the user see the specific cause or the same message for both? → A: Show the same generic sign-in failure message for both cases and do not create an authenticated session.
+- Q: Should anonymous requests to movie writes, booking creation, and booking-history reads all return the same 401 JSON error, while other forbidden requests return 403? → A: Return 401 with the same JSON error shape for anonymous protected requests; use 403 for other forbidden conditions such as invalid CSRF.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -132,6 +133,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
 - **FR-012**: Registration MUST reject missing or invalid details and identifiers already associated with an account, return specific errors identifying the problem, and create no account when registration fails.
 - **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
+- **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous. An authenticated request rejected for another forbidden condition, including invalid CSRF, MUST return `403 Forbidden`.
 
 ### Quality Acceptance Scenarios
 
