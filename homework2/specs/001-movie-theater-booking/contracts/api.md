@@ -72,9 +72,11 @@ Create a booking for the authenticated user. Request body:
 
 The server sets `user` and `booking_date`; clients cannot override them. The seat must
 belong to the requested movie and be available. Returns `201` and the booking on
-success. Returns the shared `401` error for anonymous requests, `400` for invalid or
-mismatched movie/seat values, `403` for invalid CSRF on an authenticated session, and
-`409` when another request has already reserved the seat. A conflict creates no booking.
+success. Returns the shared `401` error for anonymous requests, `404` if the movie or
+seat does not exist, `400` if the movie and seat exist but the seat belongs to another
+movie or other request fields are invalid, `403` for invalid CSRF on an authenticated
+session, and `409` when another request has already reserved the seat. A failed request
+creates no booking.
 
 Booking update and deletion are not exposed in phase one, preserving booking history.
 
