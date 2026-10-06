@@ -13,6 +13,7 @@
 ### Session 2026-10-06
 
 - Q: Should users book seats for a movie as a whole, or for a specific screening of that movie? → A: A movie is one bookable event with one seat inventory; multiple screenings are out of scope.
+- Q: How should users get the signed-in accounts needed to book seats and view booking history? → A: Phase one includes user registration and sign-in.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -43,11 +44,13 @@ confirmation, and see that seat become reserved.
 
 **Acceptance Scenarios**:
 
-1. **Given** a signed-in user selects an available seat for a movie, **When** the user confirms the booking, **Then** one booking is recorded for that user, movie, and seat, and the seat is shown as reserved.
-2. **Given** a seat has already been reserved by another user, **When** a user attempts to book it, **Then** the application rejects the booking, explains that the seat is no longer available, and does not create another booking.
-3. **Given** two users attempt to reserve the same available seat at nearly the same time, **When** both requests are processed, **Then** no more than one booking succeeds and the other user is told the seat is unavailable.
-4. **Given** a user is not signed in, **When** that user attempts to book a seat, **Then** the application requires the user to sign in and creates no booking.
-5. **Given** a selected movie has no available seats, **When** a user views its seats, **Then** the application clearly indicates that no seats are available and prevents booking.
+1. **Given** a visitor does not have an account, **When** the visitor registers with valid account details, **Then** the application creates a user account that can sign in with the single user role.
+2. **Given** a registered user provides valid sign-in details, **When** the user signs in, **Then** the application recognizes the user as signed in.
+3. **Given** a signed-in user selects an available seat for a movie, **When** the user confirms the booking, **Then** one booking is recorded for that user, movie, and seat, and the seat is shown as reserved.
+4. **Given** a seat has already been reserved by another user, **When** a user attempts to book it, **Then** the application rejects the booking, explains that the seat is no longer available, and does not create another booking.
+5. **Given** two users attempt to reserve the same available seat at nearly the same time, **When** both requests are processed, **Then** no more than one booking succeeds and the other user is told the seat is unavailable.
+6. **Given** a user is not signed in, **When** that user attempts to book a seat, **Then** the application requires the user to sign in and creates no booking.
+7. **Given** a selected movie has no available seats, **When** a user views its seats, **Then** the application clearly indicates that no seats are available and prevents booking.
 
 ---
 
@@ -87,7 +90,7 @@ As a signed-in user, I want to review my past and current bookings so that I can
 - **FR-004**: The application MUST prevent a seat already reserved for a movie from being booked again by another user.
 - **FR-005**: When competing booking attempts target the same seat, the application MUST allow at most one booking to succeed and MUST tell unsuccessful users that the seat is unavailable.
 - **FR-006**: The application MUST show a user only that user's booking history, with the movie, seat number, and booking date for each booking.
-- **FR-007**: The application MUST require a signed-in user identity to create a booking or view booking history. Phase one MUST have only the user role; administrative booking and catalog-management roles are out of scope.
+- **FR-007**: The application MUST let visitors register for an account and registered users sign in. It MUST require a signed-in user identity to create a booking or view booking history. Phase one MUST have only the user role; administrative booking and catalog-management roles are out of scope.
 - **FR-008**: The application MUST provide a visually coherent, accessible, and
 user-friendly interface with clear seat states, booking confirmations, useful error feedback, keyboard operation, and layouts usable at supported viewport sizes.
 - **FR-009**: The application MUST document its modules and externally used behavior in source code, and MUST keep the README current with setup, operation, and user-visible behavior as those details change.
@@ -120,7 +123,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 ## Assumptions
 
 - Each movie represents one bookable event in phase one and has one seat inventory. Multiple showtimes, screenings, and auditoriums are out of scope.
-- Users have individual signed-in accounts. The specific sign-in method is not defined by this feature.
+- The application provides user registration and sign-in in phase one. The account details and sign-in method are not defined by this feature.
 - Movie and seat listings are already populated; creating or administrating catalog entries is outside the single-user-role phase.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.
 - The application provides a user-facing interface for browsing movies, selecting seats, booking, and reviewing booking history.
