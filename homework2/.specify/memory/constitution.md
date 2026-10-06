@@ -1,7 +1,8 @@
 <!--
 Sync Impact Report
-Version change: 1.0.0 -> 1.1.0
-Modified principles: IV. Verified API Behavior -> IV. Test-Driven Development and Test Classification.
+Version change: 1.1.0 -> 1.2.0
+Modified principles: None.
+Added principle: VI. Visually Coherent and User-Friendly UI.
 Added sections: None.
 Removed sections: None.
 Follow-up TODO: Confirm the original ratification date.
@@ -40,6 +41,13 @@ The application MUST treat request data as untrusted, validate it at the API bou
 and enforce authorization before exposing or changing protected resources. Secrets MUST
 not be stored in source code or returned in API responses.
 
+### VI. Visually Coherent and User-Friendly UI
+The application MUST provide a user-facing UI with a consistent visual language, clear
+information hierarchy, and intuitive task flows. UI controls MUST have clear labels and
+state or error feedback, support keyboard operation, and remain legible and operable at
+supported viewport sizes. UI changes MUST be reviewed for visual consistency,
+accessibility, and task-flow clarity.
+
 ## API and Security Constraints
 API behavior MUST remain consistent across endpoints, especially for validation failures
 and not-found responses. Breaking contract changes MUST be identified in documentation
@@ -50,8 +58,8 @@ provided outside source code.
 Before completing a change, contributors MUST run the relevant unit and integration
 tests and update source documentation and the README wherever behavior or setup has
 changed. Reviewers MUST check the API contract, security boundaries, test coverage, test
-classification, and documentation impact. New dependencies and abstractions MUST be
-limited to what the requirement needs.
+classification, documentation impact, and UI usability for interface changes. New
+dependencies and abstractions MUST be limited to what the requirement needs.
 
 ## Governance
 This constitution governs project decisions and MUST be checked during planning and code
@@ -60,4 +68,4 @@ MAJOR for incompatible governance changes, MINOR for new or materially expanded 
 PATCH for clarifications that do not change requirements. Every amendment MUST update the
 last-amended date. The original ratification date remains unchanged.
 
-**Version**: 1.1.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-06
+**Version**: 1.2.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-06
