@@ -39,11 +39,7 @@ python manage.py test --tag=integration
 python manage.py behave --tags=integration
 ```
 
-Expected outcomes: each command exits successfully; unit tests cover isolated model,
-serializer, and reservation-service rules; integration tests cover API status codes,
-authentication, CSRF, persistence, templates, user-scoped history, and booking
-conflicts; Behave scenarios demonstrate registration/sign-in, browsing, booking, and
-history as end-to-end user workflows.
+Expected outcomes: each command exits successfully; unit tests cover isolated model, serializer, and reservation-service rules; integration tests cover API status codes, authentication, CSRF, persistence, templates, user-scoped history, and booking conflicts. A transaction-backed integration test must synchronize two requests for the same available seat on separate database connections and assert one `201`, one `409`, and exactly one persisted booking. Behave scenarios demonstrate registration/sign-in, browsing, booking, and history as end-to-end user workflows.
 
 ## API smoke checks
 

@@ -29,7 +29,7 @@ cannot be deleted, preserving reservation records.
 
 **Storage**: SQLite; local project database and a Render persistent disk in deployment
 
-**Testing**: Django `TestCase`/DRF `APITestCase` tagged `unit` or `integration`; Behave-Django scenarios tagged `@integration`
+**Testing**: Django `TestCase`/DRF `APITestCase` tagged `unit` or `integration`; include a transaction-backed integration test that submits synchronized competing booking requests on separate database connections and verifies one success, one conflict, and exactly one booking. Behave-Django scenarios are tagged `@integration`.
 
 **Target Platform**: Linux; DevEdu local environment on port 3000; Render single web service
 
