@@ -48,7 +48,7 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
-# Include Django auth, messaging, static files, DRF, and the bookings app.
+# Include Django auth, messaging, static files, DRF, Bootstrap, and the app.
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_bootstrap5",
     "rest_framework",
     "behave_django",
     "bookings.apps.BookingsConfig",
@@ -88,7 +89,10 @@ ROOT_URLCONF = "movie_theater_booking.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / "templates"],
+        "DIRS": [
+            BASE_DIR / "templates",
+            BASE_DIR / "bookings" / "templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -151,5 +155,9 @@ USE_TZ = True
 # Collect static assets into one folder for deployment and local use.
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Shared message storage works with Bootstrap alert rendering in forms.
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
