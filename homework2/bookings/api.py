@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, permissions, response, serializers, viewsets
-from rest_framework.views import exception_handler as drf_exception_handler
+from rest_framework import exceptions, permissions, response, viewsets
 
 from .models import Movie, Seat
 from .serializers import MovieSerializer, SeatSerializer
@@ -39,58 +38,3 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = self.filter_queryset(self.get_queryset()).filter(movie=movie)
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
-
-
-def custom_exception_handler(exc, context):
-    """Normalize DRF auth failures to the project contract.
-
-    Anonymous requests to protected endpoints must be 401 with the expected
-    JSON error shape, while authenticated forbidden requests (including invalid
-    CSRF) remain 403.
-    """
-    response_obj = drf_exception_handler(exc, context)
-    if response_obj is None:
-        return None
-
-    request = context.get("request")
-    user = getattr(request, "user", None) if request is not None else None
-    is_authenticated = bool(
-        user is not None and getattr(user, "is_authenticated", False)
-    )
-
-    if isinstance(
-        exc,
-        (exceptions.NotAuthenticated, exceptions.AuthenticationFailed),
-    ):
-        detail = str(getattr(exc, "detail", "Authentication credentials were not provided."))
-        if "CSRF Failed:" in detail:
-            response_obj.status_code = 403
-            response_obj.data = {"detail": detail}
-            return response_obj
-        response_obj.status_code = 401
-        response_obj.data = {
-            "detail": "Authentication credentials were not provided."
-        }
-        return response_obj
-
-    if isinstance(exc, exceptions.PermissionDenied):
-        detail = str(getattr(exc, "detail", ""))
-        if "CSRF Failed:" in detail:
-            response_obj.status_code = 403
-            response_obj.data = {"detail": detail}
-            return response_obj
-        if not is_authenticated:
-            response_obj.status_code = 401
-            response_obj.data = {
-                "detail": "Authentication credentials were not provided."
-            }
-            return response_obj
-
-    if isinstance(response_obj.data, dict):
-        detail = str(response_obj.data.get("detail", ""))
-        if "CSRF Failed:" in detail:
-            response_obj.status_code = 403
-            response_obj.data = {"detail": detail}
-            return response_obj
-
-    return response_obj

@@ -1,4 +1,4 @@
-"""Integration checks for the shared auth error contract."""
+"""Integration checks for DRF's configured authentication behavior."""
 
 import os
 
@@ -34,23 +34,22 @@ urlpatterns = [
 @pytest.mark.integration
 @pytest.mark.django_db
 class TestAuthErrors:
-    """Exercise the shared anonymous/CSRF auth failure contract."""
+    """Exercise the configured SessionAuthentication behavior."""
 
     @override_settings(ROOT_URLCONF=__name__)
-    def test_anonymous_request_returns_401_with_shared_error_shape(self):
-        """Anonymous access to a protected route must return a 401."""
+    def test_anonymous_request_uses_default_drf_authentication_response(self):
+        """SessionAuthentication denies anonymous access without a challenge."""
         client = APIClient()
 
         response = client.get("/test-protected/")
 
-        assert response.status_code == 401
-        assert response.json() == {
-            "detail": "Authentication credentials were not provided."
-        }
+        assert response.status_code == 403
+        assert response.json() == {"detail": "Authentication credentials were not provided."}
+        assert "WWW-Authenticate" not in response
 
     @override_settings(ROOT_URLCONF=__name__)
-    def test_authenticated_invalid_csrf_request_returns_403(self):
-        """Authenticated invalid CSRF should be rejected with 403."""
+    def test_session_authentication_rejects_invalid_csrf(self):
+        """SessionAuthentication denies unsafe requests without a valid CSRF token."""
         user_model = get_user_model()
         user_model.objects.create_user(
             username="csrf-user",
