@@ -23,7 +23,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 **Purpose**: Create the Django project and reproducible local environment.
 
-- [ ] T001 Create Django project package `movie_theater_booking/` and root `manage.py` per `plan.md`.
+- [x] T001 Create Django project package `movie_theater_booking/` and root `manage.py` per `plan.md`.
 - [ ] T002 Create root `pyproject.toml` with project metadata and the required runtime packages: Django, Django REST Framework, Behave-Django, Bootstrap/static support, Gunicorn, WhiteNoise, `dj-database-url`, and Psycopg; do not create or rely on `requirements.txt`.
 - [ ] T002a Add Pylint as an optional `dev` dependency in `pyproject.toml` (installable with `.[dev]`) and configure Pylint there to ignore `.venv`, other virtual environments, generated build/package output, collected static files, and Django migration directories.
 - [ ] T002b Create a root `README.md` with minimum essential project setup and run information, including that `.venv` will be leveraged to provide Pylint and other package-dependent capabilities to the Speckit agent.
