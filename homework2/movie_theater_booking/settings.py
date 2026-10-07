@@ -1,7 +1,7 @@
 """Django settings for the movie theater booking project.
 
-These settings centralize the environment configuration, installed apps, database
-selection, template rendering, and static-file behavior for the application.
+These settings centralize environment configuration, installed apps, database
+selection, template rendering, and static-file behavior.
 """
 
 from __future__ import annotations
@@ -9,8 +9,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-# Allow the project to use a PostgreSQL configuration on Render while still defaulting
-# to SQLite during local development when no DATABASE_URL is provided.
+# Use PostgreSQL on Render and SQLite locally when DATABASE_URL is not set.
 try:
     import dj_database_url
 except ImportError:  # pragma: no cover - dependency is optional until installation
@@ -18,37 +17,38 @@ except ImportError:  # pragma: no cover - dependency is optional until installat
 
 try:
     from dotenv import load_dotenv
-except ImportError:  # pragma: no cover - available in the development dependency group
+except ImportError:  # pragma: no cover - provided by the optional dev dependencies
     load_dotenv = None
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load local developer settings before reading environment variables. Production
-# configuration comes from the hosting environment and does not require python-dotenv.
+# Load local settings first; production uses hosting environment variables.
 ENV_FILE = BASE_DIR / ".env"
 if ENV_FILE.is_file() and load_dotenv is not None:
     load_dotenv(ENV_FILE, override=False)
 
-# Development defaults are intentionally simple, but production deployments should set
-# these values explicitly in the environment rather than hard-coding secrets.
+# Production deployments should explicitly set these values in the environment.
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get("ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0").split(",")
+    for host in os.environ.get(
+        "ALLOWED_HOSTS", "localhost,127.0.0.1,0.0.0.0"
+    ).split(",")
     if host.strip()
 ]
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         "CSRF_TRUSTED_ORIGINS",
-        "http://localhost:3000,http://127.0.0.1:3000,http://0.0.0.0:3000",
+        "http://localhost:3000,http://127.0.0.1:3000,"
+        "http://0.0.0.0:3000",
     ).split(",")
     if origin.strip()
 ]
 
-# The project includes Django's built-in auth, message framework, and the app itself.
+# Include Django auth, messaging, static files, DRF, and the bookings app.
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -60,7 +60,7 @@ INSTALLED_APPS = [
     "bookings.apps.BookingsConfig",
 ]
 
-# Middleware order matters for session handling, CSRF checks, and request processing.
+# Middleware order controls sessions, CSRF checks, and request processing.
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -73,7 +73,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "movie_theater_booking.urls"
 
-# Templates are configured to support server-rendered pages alongside the API views.
+# Configure templates for server-rendered pages alongside API views.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -92,8 +92,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "movie_theater_booking.wsgi.application"
 ASGI_APPLICATION = "movie_theater_booking.asgi.application"
 
-# Prefer the Render PostgreSQL connection string when it exists; otherwise fall back to
-# the local SQLite database for simple development and testing.
+# Prefer Render's PostgreSQL URL; otherwise use local SQLite for development.
 if dj_database_url is not None:
     DATABASES = {
         "default": dj_database_url.config(
@@ -111,16 +110,25 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation."
+            "UserAttributeSimilarityValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.MinimumLengthValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.CommonPasswordValidator"
+        ),
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+        "NAME": (
+            "django.contrib.auth.password_validation.NumericPasswordValidator"
+        ),
     },
 ]
 
@@ -129,7 +137,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
-# Static assets are collected into a single folder for deployment and local use.
+# Collect static assets into one folder for deployment and local use.
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 

@@ -29,7 +29,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - [x] T002b Create a root `README.md` with minimum essential project setup and run information, including that `.venv` will be leveraged to provide Pylint and other package-dependent capabilities to the Speckit agent.
 - [x] T003 Add environment-variable examples for `SECRET_KEY`, `DEBUG`, allowed hosts, trusted CSRF origins, local SQLite path, and the Render `DATABASE_URL` setting in `.env.example` without including credentials.
 - [x] T004 Configure `movie_theater_booking/settings.py` for the `bookings` app, Django auth, DRF, templates, static assets, local SQLite and PostgreSQL settings parsed from `DATABASE_URL` with `dj-database-url`; add root URL and WSGI/ASGI wiring in `movie_theater_booking/urls.py`, `movie_theater_booking/wsgi.py`, and `movie_theater_booking/asgi.py`.
-- [ ] T004a Run `.venv/bin/python3.12 -m pylint .`, resolve all reported Pylint errors and findings in project Python code, and confirm the score exceeds the configured 8.0 minimum.
+- [x] T004a Run `.venv/bin/python3.12 -m pylint .`, resolve all reported Pylint errors and findings in project Python code, and confirm the score exceeds the configured 8.0 minimum.
 
 ---
 
