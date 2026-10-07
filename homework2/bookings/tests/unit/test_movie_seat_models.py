@@ -7,6 +7,7 @@ from bookings.models import Movie, Seat
 
 
 @pytest.mark.unit
+@pytest.mark.django_db
 class TestMovieSeatModels:
     """Validate the model requirements for movie browsing and seat state."""
 
@@ -43,9 +44,11 @@ class TestMovieSeatModels:
             duration=116,
         )
         movie.full_clean()
+        movie.save()
 
         available_seat = Seat(movie=movie, seat_number="A1", status="available")
         available_seat.full_clean()
+        available_seat.save()
 
         reserved_seat = Seat(movie=movie, seat_number="A1", status="reserved")
         with pytest.raises(ValidationError):
