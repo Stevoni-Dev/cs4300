@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "behave_django",
     "bookings.apps.BookingsConfig",
 ]
 

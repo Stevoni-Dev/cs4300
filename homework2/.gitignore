@@ -4,4 +4,6 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 db.sqlite3
+*.output
+features/reports/*.output
 staticfiles/
