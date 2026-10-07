@@ -1,8 +1,16 @@
+"""Django settings for the movie theater booking project.
+
+These settings centralize the environment configuration, installed apps, database
+selection, template rendering, and static-file behavior for the application.
+"""
+
 from __future__ import annotations
 
 import os
 from pathlib import Path
 
+# Allow the project to use a PostgreSQL configuration on Render while still defaulting
+# to SQLite during local development when no DATABASE_URL is provided.
 try:
     import dj_database_url
 except ImportError:  # pragma: no cover - dependency is optional until installation
@@ -11,6 +19,8 @@ except ImportError:  # pragma: no cover - dependency is optional until installat
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Development defaults are intentionally simple, but production deployments should set
+# these values explicitly in the environment rather than hard-coding secrets.
 SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 DEBUG = os.environ.get("DEBUG", "True").lower() in {"1", "true", "yes", "on"}
 ALLOWED_HOSTS = [
@@ -27,6 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+# The project includes Django's built-in auth, message framework, and the app itself.
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -37,6 +48,7 @@ INSTALLED_APPS = [
     "bookings.apps.BookingsConfig",
 ]
 
+# Middleware order matters for session handling, CSRF checks, and request processing.
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -49,6 +61,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "movie_theater_booking.urls"
 
+# Templates are configured to support server-rendered pages alongside the API views.
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -67,6 +80,8 @@ TEMPLATES = [
 WSGI_APPLICATION = "movie_theater_booking.wsgi.application"
 ASGI_APPLICATION = "movie_theater_booking.asgi.application"
 
+# Prefer the Render PostgreSQL connection string when it exists; otherwise fall back to
+# the local SQLite database for simple development and testing.
 if dj_database_url is not None:
     DATABASES = {
         "default": dj_database_url.config(
@@ -102,6 +117,7 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# Static assets are collected into a single folder for deployment and local use.
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
