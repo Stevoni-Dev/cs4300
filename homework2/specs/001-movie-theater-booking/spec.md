@@ -137,7 +137,7 @@ delete it when it has no booking history; public movie listings reflect each cha
 - **FR-008**: The application MUST provide a visually coherent, accessible, and
 user-friendly interface with clear seat states, booking confirmations, useful error feedback, keyboard operation, and layouts usable at supported viewport sizes.
 - **FR-009**: The application MUST document its modules and externally used behavior in source code, and MUST keep the README current with setup, operation, and user-visible behavior as those details change.
-- **FR-010**: Tests for new behavior MUST follow test-driven development, include unit tests, and include integration tests when behavior crosses component boundaries. Every test MUST be marked as exactly one of `unit` or `integration`.
+- **FR-010**: Tests for new behavior MUST follow test-driven development, include unit tests, and include integration tests when behavior crosses component boundaries.
 - **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
 - **FR-012**: Registration MUST reject missing or invalid details and identifiers already associated with an account, return specific errors identifying the problem, and create no account when registration fails.
 - **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
@@ -152,7 +152,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 1. **Given** a user is browsing movies and booking seats, **When** the user operates the interface by keyboard at a supported viewport size, **Then** movie details, seat states, booking actions, and confirmation or error feedback remain perceivable and operable.
 2. **Given** the feature is ready for review, **When** a reviewer checks its documentation, **Then** source documentation explains externally used behavior and the README describes current setup, operation, and user-visible behavior.
 3. **Given** a new behavior is being developed, **When** implementation begins,
-**Then** its test has first been written and observed failing for the expected reason; each behavior has unit coverage, affected cross-component flows have integration coverage, and every test is marked as exactly one of `unit` or `integration`.
+**Then** its test has first been written and observed failing for the expected reason; each behavior has unit coverage, and affected cross-component flows have integration coverage.
 
 ### Key Entities *(include if feature involves data)*
 
