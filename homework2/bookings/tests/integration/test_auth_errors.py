@@ -21,7 +21,7 @@ os.environ.setdefault(
 django.setup()
 
 
-@api_view(["GET"])
+@api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
 def protected_view(_request):
     """Test-only protected endpoint used to validate the auth contract."""
@@ -54,14 +54,17 @@ class TestAuthErrors:
     def test_authenticated_invalid_csrf_request_returns_403(self):
         """Authenticated invalid CSRF should be rejected with 403."""
         user_model = get_user_model()
-        user = user_model.objects.create_user(
+        user_model.objects.create_user(
             username="csrf-user",
             password="secret-passphrase",
         )
         client = APIClient(enforce_csrf_checks=True)
-        client.force_authenticate(user=user)
+        client.login(username="csrf-user", password="secret-passphrase")
 
-        response = client.get("/test-protected/")
+        response = client.post(
+            "/test-protected/",
+            {"hello": "world"},
+        )
 
         assert response.status_code == 403
         assert response.json().keys() == {"detail"}

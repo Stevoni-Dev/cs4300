@@ -60,6 +60,16 @@ INSTALLED_APPS = [
     "bookings.apps.BookingsConfig",
 ]
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+    "EXCEPTION_HANDLER": "bookings.api.custom_exception_handler",
+}
+
 # Middleware order controls sessions, CSRF checks, and request processing.
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
