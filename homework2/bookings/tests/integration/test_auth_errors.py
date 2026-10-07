@@ -12,8 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.test import APIClient
 
-from bookings.tests import tag
-
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE",
     "movie_theater_booking.settings",
@@ -33,7 +31,7 @@ urlpatterns = [
 ]
 
 
-@tag("integration")
+@pytest.mark.integration
 @pytest.mark.django_db
 class TestAuthErrors:
     """Exercise the shared anonymous/CSRF auth failure contract."""
