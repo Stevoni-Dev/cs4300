@@ -16,8 +16,19 @@ try:
 except ImportError:  # pragma: no cover - dependency is optional until installation
     dj_database_url = None
 
+try:
+    from dotenv import load_dotenv
+except ImportError:  # pragma: no cover - available in the development dependency group
+    load_dotenv = None
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load local developer settings before reading environment variables. Production
+# configuration comes from the hosting environment and does not require python-dotenv.
+ENV_FILE = BASE_DIR / ".env"
+if ENV_FILE.is_file() and load_dotenv is not None:
+    load_dotenv(ENV_FILE, override=False)
 
 # Development defaults are intentionally simple, but production deployments should set
 # these values explicitly in the environment rather than hard-coding secrets.

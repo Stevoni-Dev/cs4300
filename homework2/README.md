@@ -14,6 +14,16 @@ python -m pip install -e ".[dev]"
 
 The `.venv` environment is leveraged by the Speckit agent to provide Pylint and other package-dependent capabilities. The optional `dev` dependency installs Pylint; runtime packages are declared in `pyproject.toml`.
 
+For local settings, copy `.env.example` to `.env` and replace the development secret:
+
+```sh
+cp .env.example .env
+```
+
+Never track or commit `.env`, and never push or deploy it to production. The root `.env`
+file is loaded only when present; production settings must be configured through the
+hosting provider's environment variables. Render supplies its PostgreSQL `DATABASE_URL`.
+
 ## Run locally
 
 ```sh

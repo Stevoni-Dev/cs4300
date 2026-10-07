@@ -25,6 +25,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pylint>=4,<5",
+    "python-dotenv>=1,<2",
 ]
 
 [tool.pylint.main]
@@ -42,6 +43,7 @@ ignore = [
 ignore-paths = [
     '(^|/)migrations/.*\\.py$',
 ]
+ignored-modules = ["dotenv"]
 
 [tool.pylint.format]
 max-line-length = 79
