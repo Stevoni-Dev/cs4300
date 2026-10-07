@@ -20,8 +20,10 @@ documentation and the README.
 
 ### II. Source Code Documentation
 Source code MUST document modules and externally used functions, types, and API handlers
-with their purpose, inputs, outputs, and observable behavior. Comments MUST explain
-non-obvious decisions or constraints and MUST be updated when the behavior changes.
+with their purpose, inputs, outputs, and observable behavior. All Python modules,
+classes, and methods MUST include docstrings that describe their intent, responsibilities, and key behavior. Docstrings MUST be kept accurate as the implementation changes.
+
+Comments MUST explain non-obvious decisions, constraints, or workflow steps and MUST be updated when the behavior changes. Explanatory comments SHOULD be added when code logic, framework conventions, or business processes are not immediately clear to developers who are new to the stack, so the process is understandable without hidden knowledge.
 
 ### III. README as Maintained Documentation
 The README MUST describe the application's purpose, setup, configuration, execution, and
@@ -68,4 +70,4 @@ MAJOR for incompatible governance changes, MINOR for new or materially expanded 
 PATCH for clarifications that do not change requirements. Every amendment MUST update the
 last-amended date. The original ratification date remains unchanged.
 
-**Version**: 1.2.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-06
+**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-07
