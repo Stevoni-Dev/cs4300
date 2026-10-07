@@ -11,7 +11,7 @@
         <li class="list-group-item">
           <h2><a href="/movies/{{ movie.pk }}/">{{ movie.title }}</a></h2>
           <p>{{ movie.description }}</p>
-          <p><strong>Release date:</strong> {{ movie.release_date }}</p>
+          <p><strong>Release date:</strong> {{ movie.release_date|date:"Y-m-d" }}</p>
           <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
           <p><strong>Availability:</strong> {{ movie.available_seats_count }} available</p>
         </li>

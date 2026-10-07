@@ -25,6 +25,9 @@ class TestBrowsePages:
         assert response.status_code == 200
         content = response.content.decode()
         assert "Dune" in content
+        assert "A noble family enters a dangerous desert planet." in content
+        assert "2026-10-10" in content
+        assert "155 minutes" in content
         assert "available" in content.lower()
 
     def test_movie_detail_page_shows_seat_availability(self, client):
@@ -45,7 +48,11 @@ class TestBrowsePages:
         assert "Arrival" in content
         assert "B4" in content
         assert "B5" in content
-        assert "reserved" in content.lower()
+        assert content.count('role="status"') == 2
+        assert "Available" in content
+        assert "Reserved" in content
+        assert 'aria-label="Seat B4: Available"' not in content
+        assert 'aria-label="Seat B5: Reserved"' not in content
 
     def test_empty_movie_listing_page_has_helpful_message(self, client):
         """A page with no movies should show an empty state."""

@@ -5,7 +5,7 @@
 {% block content %}
   <h1>{{ movie.title }}</h1>
   <p>{{ movie.description }}</p>
-  <p><strong>Release date:</strong> {{ movie.release_date }}</p>
+  <p><strong>Release date:</strong> {{ movie.release_date|date:"Y-m-d" }}</p>
   <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
 
   <h2>Seat Availability</h2>
@@ -14,8 +14,11 @@
       {% for seat in seats %}
         <li class="list-group-item">
           <strong>{{ seat.seat_number }}</strong>
-          <span class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
-            {{ seat.status }}
+          <span
+            class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}"
+            role="status"
+          >
+            {{ seat.get_status_display }}
           </span>
         </li>
       {% endfor %}
