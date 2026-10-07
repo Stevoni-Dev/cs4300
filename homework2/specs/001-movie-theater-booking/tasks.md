@@ -40,7 +40,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - [x] T005 [P] Write initial integration tests in `bookings/tests/integration/test_auth_errors.py` using a test-only protected DRF view and URL fixture, not a production route, to verify anonymous `401` responses use the agreed JSON error shape and authenticated invalid-CSRF requests return `403`; mark the module/class `@tag("integration")` and observe the expected failures. T050 later replaces this fixture with the real protected endpoints.
 - [x] T006 Implement shared DRF authentication failure handling in `movie_theater_booking/settings.py` and `bookings/api.py` so anonymous protected requests return the agreed `401` shape while authenticated forbidden/CSRF requests remain `403`.
 - [x] T007 Configure `bookings/tests/` package structure and test classification conventions in `bookings/tests/__init__.py`, `bookings/tests/unit/`, and `bookings/tests/integration/`; ensure each Django test receives exactly one of the `unit` or `integration` tags.
-- [ ] T008 [P] Configure Behave-Django test discovery and test environment in `features/environment.py` and the project Behave configuration; ensure all feature/scenario tests use `@integration`.
+- [x] T008 [P] Configure Behave-Django test discovery and test environment in `features/environment.py` and the project Behave configuration; ensure all feature/scenario tests use `@integration`.
 - [ ] T009 Configure shared Django messages, static asset handling, and base-template discovery in `movie_theater_booking/settings.py` for Bootstrap-backed server-rendered pages.
 
 **Checkpoint**: Django starts, migrations can run, the test runner recognizes unit/integration classifications, and the shared API auth policy is covered.
