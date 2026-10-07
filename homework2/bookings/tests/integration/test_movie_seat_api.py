@@ -58,6 +58,10 @@ class TestMovieSeatApi:
         assert len(seats) == 2
         assert {seat["seat_number"] for seat in seats} == {"A1", "A2"}
 
+        seat_detail_response = client.get(f"/api/seats/{seats[0]['id']}/")
+        assert seat_detail_response.status_code == 200
+        assert seat_detail_response.json()["seat_number"] == seats[0]["seat_number"]
+
     def test_empty_seat_list_for_a_movie_without_seats(self):
         """Movies without any seats should return an empty list."""
         movie = Movie.objects.create(
