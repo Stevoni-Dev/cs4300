@@ -1,9 +1,8 @@
 <!--
 Sync Impact Report
-Version change: 1.1.0 -> 1.2.0
-Modified principles: None.
-Added principle: VI. Visually Coherent and User-Friendly UI.
-Added sections: None.
+Version change: 1.4.0 -> 1.5.0
+Modified sections: Development Workflow and Quality Gates.
+Added guidance: Prefer the existing .venv interpreter for Pylint and related project commands.
 Removed sections: None.
 Follow-up TODO: Confirm the original ratification date.
 -->
@@ -68,6 +67,13 @@ All Python code MUST adhere to PEP 8 style standards, including formatting, nami
 line length, and readability expectations, and must be updated to fix linting or style
 violations before a change is considered complete.
 
+When the repository contains an existing `.venv`, contributors and Speckit agents MUST
+use its Python interpreter for Pylint and other project-dependent commands instead of
+relying on globally installed executables. For example, run
+`.venv/bin/python3.12 -m pylint .`; use the same interpreter for package installation,
+Django management commands, and tests so they run with the project's declared
+dependencies.
+
 ## Governance
 This constitution governs project decisions and MUST be checked during planning and code
 review. Amendments MUST be reviewed, recorded in this file, and follow semantic versioning:
@@ -75,4 +81,4 @@ MAJOR for incompatible governance changes, MINOR for new or materially expanded 
 PATCH for clarifications that do not change requirements. Every amendment MUST update the
 last-amended date. The original ratification date remains unchanged.
 
-**Version**: 1.4.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-07
+**Version**: 1.5.0 | **Ratified**: 2026-10-06: confirm original adoption date | **Last Amended**: 2026-10-07
