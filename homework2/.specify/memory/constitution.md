@@ -63,6 +63,11 @@ changed. Reviewers MUST check the API contract, security boundaries, test covera
 classification, documentation impact, and UI usability for interface changes. New
 dependencies and abstractions MUST be limited to what the requirement needs.
 
+Python code MUST be verified with pylint and MUST pass with a score of 8.0 or higher.
+All Python code MUST adhere to PEP 8 style standards, including formatting, naming,
+line length, and readability expectations, and must be updated to fix linting or style
+violations before a change is considered complete.
+
 ## Governance
 This constitution governs project decisions and MUST be checked during planning and code
 review. Amendments MUST be reviewed, recorded in this file, and follow semantic versioning:
@@ -70,4 +75,4 @@ MAJOR for incompatible governance changes, MINOR for new or materially expanded 
 PATCH for clarifications that do not change requirements. Every amendment MUST update the
 last-amended date. The original ratification date remains unchanged.
 
-**Version**: 1.3.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-07
+**Version**: 1.4.0 | **Ratified**: TODO(RATIFICATION_DATE): confirm original adoption date | **Last Amended**: 2026-10-07
