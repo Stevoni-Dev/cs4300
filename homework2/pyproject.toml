@@ -33,6 +33,10 @@ dev = [
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "movie_theater_booking.settings"
 python_files = ["test_*.py", "*_test.py", "tests.py"]
+markers = [
+    "unit: unit-level Django tests",
+    "integration: integration-level Django tests",
+]
 
 [tool.pylint.main]
 recursive = true
