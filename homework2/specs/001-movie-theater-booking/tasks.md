@@ -55,9 +55,9 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ### Tests for User Story 1 (TDD - write and observe failures first)
 
-- [ ] T010 [P] [US1] Add unit tests in `bookings/tests/unit/test_movie_seat_models.py` for Movie required title/description/date, positive duration, Seat status values, and uniqueness of `(movie, seat_number)`; mark `unit`.
-- [ ] T011 [P] [US1] Add API integration tests in `bookings/tests/integration/test_movie_seat_api.py` for public movie list/detail and `GET /api/seats/?movie=<id>`, including missing/invalid movie `400`, unknown movie `404`, and empty results; mark `integration`.
-- [ ] T012 [P] [US1] Add page integration tests in `bookings/tests/integration/test_browse_pages.py` for movie listing, movie detail/seat availability, empty states, and shared API/template database data; mark `integration`.
+- [x] T010 [P] [US1] Add unit tests in `bookings/tests/unit/test_movie_seat_models.py` for Movie required title/description/date, positive duration, Seat status values, and uniqueness of `(movie, seat_number)`; mark `unit`.
+- [x] T011 [P] [US1] Add API integration tests in `bookings/tests/integration/test_movie_seat_api.py` for public movie list/detail and `GET /api/seats/?movie=<id>`, including missing/invalid movie `400`, unknown movie `404`, and empty results; mark `integration`.
+- [x] T012 [P] [US1] Add page integration tests in `bookings/tests/integration/test_browse_pages.py` for movie listing, movie detail/seat availability, empty states, and shared API/template database data; mark `integration`.
 
 ### Implementation for User Story 1
 
