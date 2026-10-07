@@ -6,13 +6,19 @@ import os
 
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "movie_theater_booking.settings")
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "movie_theater_booking.settings",
+)
 django.setup()
 
 
 def before_scenario(context, scenario):
-    """Require every feature scenario to be explicitly tagged as integration."""
-    scenario_tags = {tag.lower() for tag in getattr(scenario, "tags", [])}
+    """Require every scenario to be tagged as integration."""
+    scenario_tags = {
+        tag.lower()
+        for tag in getattr(scenario, "tags", [])
+    }
     feature_tags = {
         tag.lower()
         for tag in getattr(getattr(context, "feature", None), "tags", [])

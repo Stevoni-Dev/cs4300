@@ -37,19 +37,23 @@ class TestAuthErrors:
     """Exercise the configured SessionAuthentication behavior."""
 
     @override_settings(ROOT_URLCONF=__name__)
-    def test_anonymous_request_uses_default_drf_authentication_response(self):
-        """SessionAuthentication denies anonymous access without a challenge."""
+    def test_anonymous_request_uses_default_drf_authentication_response(
+        self,
+    ):
+        """Anonymous SessionAuthentication requests have no challenge."""
         client = APIClient()
 
         response = client.get("/test-protected/")
 
         assert response.status_code == 403
-        assert response.json() == {"detail": "Authentication credentials were not provided."}
+        assert response.json() == {
+            "detail": "Authentication credentials were not provided."
+        }
         assert "WWW-Authenticate" not in response
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_session_authentication_rejects_invalid_csrf(self):
-        """SessionAuthentication denies unsafe requests without a valid CSRF token."""
+        """SessionAuthentication denies unsafe requests without valid CSRF."""
         user_model = get_user_model()
         user_model.objects.create_user(
             username="csrf-user",

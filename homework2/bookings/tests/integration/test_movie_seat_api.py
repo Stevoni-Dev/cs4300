@@ -13,6 +13,7 @@ class TestMovieSeatApi:
 
     @pytest.fixture
     def movie(self):
+        """Create a movie with available and reserved inventory."""
         movie = Movie.objects.create(
             title="Inception",
             description="A dream within a dream.",
@@ -24,7 +25,7 @@ class TestMovieSeatApi:
         return movie
 
     def test_public_movie_list_and_detail(self, movie):
-        """Visitors should be able to read public movie listings and details."""
+        """Visitors can read public movie listings and details."""
         client = APIClient()
 
         list_response = client.get("/api/movies/")
@@ -35,7 +36,7 @@ class TestMovieSeatApi:
         assert detail_response.status_code == 200
         assert detail_response.json()["title"] == "Inception"
 
-    def test_get_seats_requires_a_valid_movie_query(self, movie):
+    def test_get_seats_requires_a_valid_movie_query(self):
         """Seat list queries should validate the required movie identifier."""
         client = APIClient()
 
@@ -48,7 +49,9 @@ class TestMovieSeatApi:
         unknown_movie_response = client.get("/api/seats/", {"movie": 999999})
         assert unknown_movie_response.status_code == 404
 
-    def test_seat_list_for_movie_returns_only_that_movies_seats(self, movie):
+    def test_seat_list_for_movie_returns_only_that_movies_seats(
+        self, movie
+    ):
         """The seat API should return only seats for the selected movie."""
         client = APIClient()
 
@@ -58,9 +61,14 @@ class TestMovieSeatApi:
         assert len(seats) == 2
         assert {seat["seat_number"] for seat in seats} == {"A1", "A2"}
 
-        seat_detail_response = client.get(f"/api/seats/{seats[0]['id']}/")
+        seat_detail_response = client.get(
+            f"/api/seats/{seats[0]['id']}/"
+        )
         assert seat_detail_response.status_code == 200
-        assert seat_detail_response.json()["seat_number"] == seats[0]["seat_number"]
+        assert (
+            seat_detail_response.json()["seat_number"]
+            == seats[0]["seat_number"]
+        )
 
     def test_empty_seat_list_for_a_movie_without_seats(self):
         """Movies without any seats should return an empty list."""

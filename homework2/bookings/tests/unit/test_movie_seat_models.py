@@ -35,8 +35,10 @@ class TestMovieSeatModels:
         with pytest.raises(ValidationError):
             movie.full_clean()
 
-    def test_seat_status_choices_and_movie_seat_uniqueness(self):
-        """Seat status should be constrained and seat numbers unique per movie."""
+    def test_seat_status_choices_and_movie_seat_uniqueness(
+        self,
+    ):
+        """Seat status is constrained and numbers unique per movie."""
         movie = Movie(
             title="Arrival",
             description="A linguist decodes a mysterious signal.",
@@ -46,7 +48,11 @@ class TestMovieSeatModels:
         movie.full_clean()
         movie.save()
 
-        available_seat = Seat(movie=movie, seat_number="A1", status="available")
+        available_seat = Seat(
+            movie=movie,
+            seat_number="A1",
+            status="available",
+        )
         available_seat.full_clean()
         available_seat.save()
 

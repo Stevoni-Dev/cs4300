@@ -66,8 +66,8 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - [x] T015 [US1] Register `/api/movies/` and `/api/seats/` routes in `bookings/urls.py` and `movie_theater_booking/urls.py`, supporting movie list/detail and movie-scoped seat list/detail reads.
 - [x] T016 [US1] Implement movie listing and seat availability views in `bookings/views.py` and templates in `bookings/templates/bookings/base.html`, `movie_list.html`, and `movie_detail.html`; use Bootstrap, label seat states accessibly, and render data from the same models used by the API.
 - [x] T017 [US1] Run `bookings/tests/unit/test_movie_seat_models.py` with `.venv/bin/python -m pytest bookings/tests/unit/test_movie_seat_models.py -m unit` and the US1 integration tests in `bookings/tests/integration/test_movie_seat_api.py` and `bookings/tests/integration/test_browse_pages.py` with `.venv/bin/python -m pytest bookings/tests/integration/test_movie_seat_api.py bookings/tests/integration/test_browse_pages.py -m integration`; fix failures and confirm the movie/seat browse story passes independently.
-- [ ] T017a Resolve all C0114, C0115, C0116, C0301 pylint errors. 
-- [ ] T017b Resolve all E0307, E1101, R0901.
+- [x] T017a Resolve all C0114, C0115, C0116, C0301 pylint errors.
+- [x] T017b Resolve all E0307, E1101, R0901.
 
 **Checkpoint**: Visitors can browse listings and seat availability without authentication; API and pages show the same data.
 

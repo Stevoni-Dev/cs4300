@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.core.validators import MinValueValidator
+from django.db import models
 
 
 class Movie(models.Model):
@@ -19,13 +19,18 @@ class Movie(models.Model):
 
     def clean(self):
         super().clean()
-        if self.title is not None and not self.title.strip():
+        if (
+            self.title is not None
+            and not self.title.strip()
+        ):
             raise ValidationError({"title": "This field cannot be blank."})
         if self.description is not None and not self.description.strip():
-            raise ValidationError({"description": "This field cannot be blank."})
+            raise ValidationError(
+                {"description": "This field cannot be blank."}
+            )
 
     def __str__(self) -> str:
-        return self.title
+        return str(self.title)
 
 
 class Seat(models.Model):
@@ -38,7 +43,11 @@ class Seat(models.Model):
         (STATUS_RESERVED, "Reserved"),
     ]
 
-    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name="seats")
+    movie = models.ForeignKey(
+        Movie,
+        on_delete=models.CASCADE,
+        related_name="seats",
+    )
     seat_number = models.CharField(max_length=10, blank=False, null=False)
     status = models.CharField(
         max_length=20,
@@ -49,6 +58,8 @@ class Seat(models.Model):
     )
 
     class Meta:
+        """Uniqueness rules for a movie's seat inventory."""
+
         constraints = [
             models.UniqueConstraint(
                 fields=["movie", "seat_number"],
@@ -58,8 +69,13 @@ class Seat(models.Model):
 
     def clean(self):
         super().clean()
-        if not self.seat_number or not self.seat_number.strip():
-            raise ValidationError({"seat_number": "This field cannot be blank."})
+        if (
+            not self.seat_number
+            or not self.seat_number.strip()
+        ):
+            raise ValidationError(
+                {"seat_number": "This field cannot be blank."}
+            )
 
     def __str__(self) -> str:
         return f"{self.movie_id}:{self.seat_number}"

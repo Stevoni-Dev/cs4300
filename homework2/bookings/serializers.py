@@ -11,6 +11,8 @@ class MovieSerializer(serializers.ModelSerializer):
     """Public representation of a movie."""
 
     class Meta:
+        """Fields included in a movie response."""
+
         model = Movie
         fields = ["id", "title", "description", "release_date", "duration"]
 
@@ -19,5 +21,7 @@ class SeatSerializer(serializers.ModelSerializer):
     """Public representation of a seat and its current availability."""
 
     class Meta:
+        """Fields included in a seat response."""
+
         model = Seat
         fields = ["id", "movie", "seat_number", "status"]
