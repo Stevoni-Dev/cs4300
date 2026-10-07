@@ -20,7 +20,7 @@
 ## Requirement Clarity and Consistency
 
 - [x] CHK007 Is the permission boundary clear about which movie operations any signed-in user may perform, given there is only one user role? [Clarity, Spec §FR-007, §FR-011]
-- [x] CHK008 Are authentication and authorization responses consistent for anonymous movie writes, booking creation, and booking-history reads when using standard DRF auth semantics? [Consistency, Spec §FR-006, §FR-007, §FR-011, §FR-014]
+- [x] CHK008 Are authentication and authorization responses consistent for anonymous movie writes, booking creation, and booking-history reads when using standard DRF auth semantics? [Consistency, Spec §FR-006, §FR-007, §FR-011]
 - [x] CHK009 Are validation-error and not-found response shapes defined consistently across movie, seat, and booking resources? [Clarity, Spec §FR-001–FR-006]
 - [x] CHK010 Is the behavior for deleting a movie with seats but no bookings distinguished from deleting a movie with booking history? [Clarity, Spec §FR-011]
 - [x] CHK011 Is the relationship between API movie CRUD and the read-only movie listing page explicit, including how changed catalog data is reflected? [Consistency, Spec §FR-001, §FR-011]
@@ -28,9 +28,9 @@
 ## Booking Conflict and Edge-Case Coverage
 
 - [x] CHK012 Do requirements define one unambiguous conflict outcome when two users attempt to reserve the same seat concurrently? [Coverage, Spec §FR-004, §FR-005]
-- [x] CHK013 Are requests for unknown movies, unknown seats, and seats belonging to a different movie assigned distinct, understandable outcomes? [Coverage, Spec §FR-002–FR-005, §FR-015]
-- [x] CHK014 Do requirements state whether a user may book multiple distinct seats for the same movie, or whether duplicate bookings by the same user are restricted? [Clarity, Spec §FR-003–FR-005, §FR-016]
-- [x] CHK015 Are the booking-history ordering, pagination, and empty-result expectations specified sufficiently for clients? [Completeness, Spec §FR-006, §FR-017]
+- [x] CHK013 Are requests for unknown movies, unknown seats, and seats belonging to a different movie assigned distinct, understandable outcomes? [Coverage, Spec §FR-002–FR-005, §FR-014]
+- [x] CHK014 Do requirements state whether a user may book multiple distinct seats for the same movie, or whether duplicate bookings by the same user are restricted? [Clarity, Spec §FR-003–FR-005, §FR-015]
+- [x] CHK015 Are the booking-history ordering, pagination, and empty-result expectations specified sufficiently for clients? [Completeness, Spec §FR-006, §FR-016]
 
 ## Acceptance Criteria and Traceability
 

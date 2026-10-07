@@ -17,7 +17,6 @@
 - Q: Is movie catalog CRUD part of phase one or a later extension? → A: Movie catalog CRUD is a goal for phase one and is not an extension.
 - Q: If registration details are invalid or the account identifier is already in use, what should the user see, and should an account be created? → A: Show specific errors for every failure, including when the identifier is already registered; create no account.
 - Q: When sign-in fails because the account is unknown or its password is incorrect, should the user see the specific cause or the same message for both? → A: Show the same generic sign-in failure message for both cases and do not create an authenticated session.
-- Q: Should anonymous requests to movie writes, booking creation, and booking-history reads all return the same 401 JSON error, while other forbidden requests return 403? → A: Return 401 with the same JSON error shape for anonymous protected requests; use 403 for other forbidden conditions such as invalid CSRF.
 - Q: For booking requests, should an unknown movie or seat return 404 Not Found, while a real seat that belongs to a different movie returns 400 Bad Request? → A: Unknown movies or seats return 404; a seat belonging to a different movie returns 400.
 - Q: May a signed-in user book multiple distinct seats for the same movie, with one booking per seat? → A: Yes. A user may book multiple distinct available seats; each seat has its own booking.
 - Q: How should the booking-history API order and paginate a user's bookings? → A: Return the newest bookings first and paginate at 20 bookings per page; an empty history returns an empty result list.
@@ -141,11 +140,10 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
 - **FR-012**: Registration MUST reject missing or invalid details and identifiers already associated with an account, return specific errors identifying the problem, and create no account when registration fails.
 - **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
-- **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous.
-- **FR-015**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
-- **FR-016**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
-- **FR-017**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
-- **FR-018**: The project MUST deploy the application to Render and provide deployment configuration and instructions. The application MUST become ready to serve its primary page and API within the configured startup/readiness window, and application data MUST remain available after a service restart.
+- **FR-014**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
+- **FR-015**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
+- **FR-016**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
+- **FR-017**: The project MUST deploy the application to Render and provide deployment configuration and instructions. The application MUST become ready to serve its primary page and API within the configured startup/readiness window, and application data MUST remain available after a service restart.
 
 ### Quality Acceptance Scenarios
 
