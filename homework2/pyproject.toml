@@ -25,6 +25,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pylint>=4,<5",
+    "pylint-django>=2.6,<3",
     "pytest>=8,<9",
     "pytest-django>=4.9,<5",
     "python-dotenv>=1,<2",
@@ -54,6 +55,8 @@ ignore-paths = [
     '(^|/)migrations/.*\\.py$',
 ]
 ignored-modules = ["dotenv"]
+load-plugins = ["pylint_django"]
+django-settings-module = "movie_theater_booking.settings"
 
 [tool.pylint.format]
 max-line-length = 79
