@@ -20,7 +20,7 @@
 ## Requirement Clarity and Consistency
 
 - [x] CHK007 Is the permission boundary clear about which movie operations any signed-in user may perform, given there is only one user role? [Clarity, Spec §FR-007, §FR-011]
-- [x] CHK008 Are authentication and authorization responses consistent for anonymous movie writes, booking creation, and booking-history reads? [Consistency, Spec §FR-006, §FR-007, §FR-011, §FR-014]
+- [x] CHK008 Are authentication and authorization responses consistent for anonymous movie writes, booking creation, and booking-history reads when using standard DRF auth semantics? [Consistency, Spec §FR-006, §FR-007, §FR-011, §FR-014]
 - [x] CHK009 Are validation-error and not-found response shapes defined consistently across movie, seat, and booking resources? [Clarity, Spec §FR-001–FR-006]
 - [x] CHK010 Is the behavior for deleting a movie with seats but no bookings distinguished from deleting a movie with booking history? [Clarity, Spec §FR-011]
 - [x] CHK011 Is the relationship between API movie CRUD and the read-only movie listing page explicit, including how changed catalog data is reflected? [Consistency, Spec §FR-001, §FR-011]

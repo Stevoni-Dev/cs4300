@@ -141,7 +141,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-011**: The movie API MUST allow a signed-in user to create, retrieve, update, and delete movie listings using the single user role. Movie records with booking history MUST NOT be deletable. Anonymous users MUST NOT create, update, or delete movies.
 - **FR-012**: Registration MUST reject missing or invalid details and identifiers already associated with an account, return specific errors identifying the problem, and create no account when registration fails.
 - **FR-013**: Sign-in MUST show the same generic failure message when the account is unknown or the password is incorrect. Failed sign-in MUST NOT create an authenticated session.
-- **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous. An authenticated request rejected for another forbidden condition, including invalid CSRF, MUST return `403 Forbidden`.
+- **FR-014**: Every protected API endpoint MUST return `401 Unauthorized` with the same JSON error shape when the request is anonymous.
 - **FR-015**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
 - **FR-016**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
 - **FR-017**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
