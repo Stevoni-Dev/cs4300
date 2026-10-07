@@ -2,14 +2,8 @@
 
 import os
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "movie_theater_booking.settings")
-
 import django
 import pytest
-
-
-django.setup()
-
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import path
@@ -20,10 +14,16 @@ from rest_framework.test import APIClient
 
 from bookings.tests import tag
 
+os.environ.setdefault(
+    "DJANGO_SETTINGS_MODULE",
+    "movie_theater_booking.settings",
+)
+django.setup()
+
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
-def protected_view(request):
+def protected_view(_request):
     """Test-only protected endpoint used to validate the auth contract."""
     return Response({"ok": True})
 
@@ -40,6 +40,7 @@ class TestAuthErrors:
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_anonymous_request_returns_401_with_shared_error_shape(self):
+        """Anonymous access to a protected route must return a 401."""
         client = APIClient()
 
         response = client.get("/test-protected/")
@@ -51,6 +52,7 @@ class TestAuthErrors:
 
     @override_settings(ROOT_URLCONF=__name__)
     def test_authenticated_invalid_csrf_request_returns_403(self):
+        """Authenticated invalid CSRF should be rejected with 403."""
         user_model = get_user_model()
         user = user_model.objects.create_user(
             username="csrf-user",
