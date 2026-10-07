@@ -1,0 +1,28 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+  <h1>{{ movie.title }}</h1>
+  <p>{{ movie.description }}</p>
+  <p><strong>Release date:</strong> {{ movie.release_date }}</p>
+  <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+
+  <h2>Seat Availability</h2>
+  {% if seats %}
+    <ul class="list-group">
+      {% for seat in seats %}
+        <li class="list-group-item">
+          <strong>{{ seat.seat_number }}</strong>
+          <span class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}">
+            {{ seat.status }}
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-warning" role="alert">
+      No seats are available for this movie.
+    </div>
+  {% endif %}
+{% endblock %}

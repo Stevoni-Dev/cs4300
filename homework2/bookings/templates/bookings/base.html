@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Movie Theater Booking{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+  </head>
+  <body class="container py-4">
+    <main>
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

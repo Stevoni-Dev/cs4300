@@ -1,9 +1,17 @@
-"""URL declarations for the bookings app.
+"""URL declarations for the bookings app."""
 
-This module is expected to grow as the app adds movie browsing, seat
-availability, booking history, and authentication routes. It is intentionally
-kept minimal during the initial scaffold so later feature work remains easy to
-extend.
-"""
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-urlpatterns = []
+from .api import MovieViewSet, SeatViewSet
+from .views import movie_detail_view, movie_list_view
+
+router = DefaultRouter()
+router.register(r"movies", MovieViewSet, basename="movie")
+router.register(r"seats", SeatViewSet, basename="seat")
+
+urlpatterns = [
+    path("api/", include(router.urls)),
+    path("movies/", movie_list_view, name="movie-list"),
+    path("movies/<int:pk>/", movie_detail_view, name="movie-detail"),
+]
