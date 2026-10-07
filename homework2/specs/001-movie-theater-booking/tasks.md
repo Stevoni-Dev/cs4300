@@ -24,9 +24,9 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 **Purpose**: Create the Django project and reproducible local environment.
 
 - [x] T001 Create Django project package `movie_theater_booking/` and root `manage.py` per `plan.md`.
-- [ ] T002 Create root `pyproject.toml` with project metadata and the required runtime packages: Django, Django REST Framework, Behave-Django, Bootstrap/static support, Gunicorn, WhiteNoise, `dj-database-url`, and Psycopg; do not create or rely on `requirements.txt`.
-- [ ] T002a Add Pylint as an optional `dev` dependency in `pyproject.toml` (installable with `.[dev]`) and configure Pylint there to ignore `.venv`, other virtual environments, generated build/package output, collected static files, and Django migration directories.
-- [ ] T002b Create a root `README.md` with minimum essential project setup and run information, including that `.venv` will be leveraged to provide Pylint and other package-dependent capabilities to the Speckit agent.
+- [x] T002 Create root `pyproject.toml` with project metadata and the required runtime packages: Django, Django REST Framework, Behave-Django, Bootstrap/static support, Gunicorn, WhiteNoise, `dj-database-url`, and Psycopg; do not create or rely on `requirements.txt`.
+- [x] T002a Add Pylint as an optional `dev` dependency in `pyproject.toml` (installable with `.[dev]`) and configure Pylint there to ignore `.venv`, other virtual environments, generated build/package output, collected static files, and Django migration directories.
+- [x] T002b Create a root `README.md` with minimum essential project setup and run information, including that `.venv` will be leveraged to provide Pylint and other package-dependent capabilities to the Speckit agent.
 - [ ] T003 Add environment-variable examples for `SECRET_KEY`, `DEBUG`, allowed hosts, trusted CSRF origins, local SQLite path, and the Render `DATABASE_URL` setting in `.env.example` without including credentials.
 - [ ] T004 Configure `movie_theater_booking/settings.py` for the `bookings` app, Django auth, DRF, templates, static assets, local SQLite and PostgreSQL settings parsed from `DATABASE_URL` with `dj-database-url`; add root URL and WSGI/ASGI wiring in `movie_theater_booking/urls.py`, `movie_theater_booking/wsgi.py`, and `movie_theater_booking/asgi.py`.
 
