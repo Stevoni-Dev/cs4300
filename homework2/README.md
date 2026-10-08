@@ -105,6 +105,17 @@ the repository.
 
 ## AI-use disclosure
 
-GitHub Copilot assisted with implementation, test authoring, debugging, and documentation
-during this project. Review this disclosure and adapt it to the assignment's required
-wording and the work submitted.
+This project used AI-assisted Spec-Driven Development following the workflow described
+by [GitHub Spec Kit](https://github.github.io/spec-kit/). AI completed 100% of the code
+implementation, test authoring, and debugging, and approximately 90% of the project
+documentation.
+
+Spec-Driven Development was introduced in class on September 24, 2026. The class book
+describes the approach in its [chapter on AI across the software development
+lifecycle](https://www.swebook.org/chapters/13-ai-across-the-lifecycle/index.html#135-spec-driven-development).
+
+My contribution was guiding and reviewing the development process. I established and
+maintained the project constitution, specified requirements and acceptance criteria,
+used checklists to assess completeness, and organized implementation through
+dependency-aware tasks. I also directed the workflow, tested the application, and
+provided feedback when behavior did not match the requirements. 
