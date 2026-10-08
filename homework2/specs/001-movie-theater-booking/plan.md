@@ -8,8 +8,7 @@ the planning request in this session.
 ## Summary
 
 Build a Django application named `movie_theater_booking` with a `bookings` app, SQLite
-for local development, PostgreSQL on Render, and Django REST Framework. DRF serializers and viewsets expose movie CRUD, movie-scoped
-seat availability, and authenticated booking creation/history. Django template pages
+for local development, PostgreSQL on Render, and Django REST Framework. DRF serializers and viewsets expose movie CRUD, seat CRUD at `/api/seats/` (reads filtered by `?movie=`) and authenticated booking creation/history. Django template pages
 use the same ORM models and booking service as the API, with Bootstrap for the UI. Seat
 reservation is atomic and protected by database uniqueness constraints. The plan
 includes classified Django unit/API integration tests, Behave workflow tests, DevEdu

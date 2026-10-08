@@ -35,22 +35,60 @@ returns `404`.
 ### `DELETE /api/movies/{movie_id}/`
 
 Delete a movie with no booking history. Requires sign-in; unauthenticated requests receive
-DRF's response for the configured authentication and permission classes. Returns `204`; deletion is rejected with `409` if any
+DRF's response for the configured authentication and permission classes. Returns `204` and
+removes the movie's seat inventory with it; deletion is rejected with `409` if any
 booking history exists, and unknown id returns `404`.
 
 ## Seats
 
+A seat belongs to exactly one movie, and its `seat_number` is unique within that movie
+(the same number may exist for different movies). Seat responses contain `id`, `movie`,
+`seat_number`, and `status` (`available` or `reserved`). `/api/seats/` is the only seat
+endpoint; there are no movie-nested seat routes.
+
 ### `GET /api/seats/?movie={movie_id}`
 
-List seats and their current status for one movie. The `movie` query parameter is
-required. Returns `200` with items containing `id`, `movie`, `seat_number`, and
-`status` (`available` or `reserved`). Missing or invalid `movie` returns `400`; an
+List seats and their current status for one movie. Public. The `movie` query parameter is
+required. Returns `200` with a seat array. Missing or invalid `movie` returns `400`; an
 unknown movie returns `404`.
 
 ### `GET /api/seats/{seat_id}/`
 
-Retrieve one seat and its status. Returns `200` or `404`. Seat creation and mutation are
-not part of the user-facing API in phase one; inventory is provisioned separately.
+Retrieve one seat and its status. Public. Returns `200` or `404`.
+
+### `POST /api/seats/`
+
+Create a seat. Requires sign-in; unauthenticated requests receive DRF's response for the
+configured authentication and permission classes. Request body:
+
+```json
+{
+  "movie": 12,
+  "seat_number": "A1"
+}
+```
+
+`movie` and `seat_number` are required. `seat_number` must be non-blank and unique within
+the movie. The server sets `status` to `available`; a client-supplied `status` is ignored.
+Returns `201` and the created seat. A missing or malformed `movie`, or a missing, blank,
+invalid, or duplicate `seat_number`, returns `400` with a field-specific error and creates
+no seat. An unknown movie returns `404`, as for booking requests.
+
+### `PUT` / `PATCH /api/seats/{seat_id}/`
+
+Change a seat's `seat_number`. Requires sign-in; unauthenticated requests receive DRF's
+response for the configured authentication and permission classes. Validation matches
+creation, and renaming a seat to its own current number is valid. `movie` and `status` are
+read-only on update; client-supplied values are ignored, so a seat cannot move to another
+movie. Returns `200`; invalid or duplicate values return `400`, and an unknown seat
+returns `404`.
+
+### `DELETE /api/seats/{seat_id}/`
+
+Delete a seat with no booking history. Requires sign-in; unauthenticated requests receive
+DRF's response for the configured authentication and permission classes. Returns `204`;
+deletion is rejected with `409` if the seat has a booking, leaving the seat and its
+booking intact. An unknown seat returns `404`.
 
 ## Bookings
 
@@ -92,7 +130,8 @@ Booking update and deletion are not exposed in phase one, preserving booking his
 ## Shared error expectations
 
 - Validation errors identify the invalid field or explain the failed booking rule.
-- Missing resources return `404`.
+- Missing resources return `404`, including an unknown `movie` on seat creation.
+- Deleting a movie or seat with booking history returns `409`.
 - Authentication and permission failures use the status, challenge header, and error body produced by the configured DRF classes and default exception handler.
 - Invalid CSRF on an authenticated session is rejected by DRF; the request does not perform the mutation.
 - Seat conflicts return `409` and an actionable unavailable-seat message.
