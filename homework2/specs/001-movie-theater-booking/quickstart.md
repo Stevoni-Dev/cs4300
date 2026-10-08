@@ -9,10 +9,10 @@
 ## Local development in DevEdu
 
 1. Create and activate a virtual environment using the course environment instructions.
-2. Install the pinned project dependencies:
+2. Install the project and development dependencies declared in `pyproject.toml`:
 
    ```sh
-   pip install -r requirements.txt
+   python -m pip install -e '.[dev]'
    ```
 
 3. Copy `.env.example` to `.env`, set a local `SECRET_KEY`, and keep `.env` untracked.
@@ -34,9 +34,9 @@ is implemented. Every Django test is tagged exactly `unit` or `integration`; eve
 Behave workflow is tagged `@integration`.
 
 ```sh
-python manage.py test --tag=unit
-python manage.py test --tag=integration
-python manage.py behave --tags=integration
+.venv/bin/python3.12 -m pytest bookings/tests/unit -m unit
+.venv/bin/python3.12 -m pytest bookings/tests/integration -m integration
+.venv/bin/python3.12 manage.py behave --tags=integration
 ```
 
 Expected outcomes: each command exits successfully; unit tests cover isolated model, serializer, and reservation-service rules; integration tests cover API status codes, authentication, CSRF, persistence, templates, user-scoped history, and booking conflicts. A transaction-backed integration test must synchronize two requests for the same available seat on separate database connections and assert one `201`, one `409`, and exactly one persisted booking. Behave scenarios demonstrate registration/sign-in, browsing, booking, and history as end-to-end user workflows.
