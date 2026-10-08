@@ -1,8 +1,12 @@
-"""Serialize public catalog reads, catalog writes, and booking requests.
+"""Serialize public catalog reads, inventory writes, and booking requests.
 
-Movie fields are validated on create and update. Booking ownership and time
-remain server-controlled; unknown movie or seat identifiers return not-found
-responses before the shared booking service claims inventory.
+Movie fields are validated on create and update. Seat writes are validated on
+create and update: each seat must have a nonblank trimmed ``seat_number`` for
+its movie, duplicate labels within the same movie are rejected, the movie is
+required on create and ignored on update, and ``status`` is always server-
+controlled as ``available``. Booking ownership and time remain server-
+controlled; unknown movie or seat identifiers return not-found responses
+before the shared booking service claims inventory.
 """
 
 from __future__ import annotations
@@ -76,7 +80,13 @@ class SeatNumberField(serializers.CharField):
 class SeatSerializer(
     serializers.ModelSerializer
 ):  # pylint: disable=too-few-public-methods
-    """Validate seat writes and serialize movie-scoped seat inventory."""
+    """Validate seat inventory writes and serialize movie-scoped seat data.
+
+    Create requests require a valid movie and a nonblank seat number; update
+    requests may rename the seat but keep it within the same movie and ignore
+    any client-provided ``status``/``movie`` values. Responses always include
+    the movie ID, label, and the server-controlled availability state.
+    """
 
     movie = NotFoundPrimaryKeyRelatedField(
         queryset=Movie.objects.all(),  # pylint: disable=no-member

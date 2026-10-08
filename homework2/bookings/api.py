@@ -1,8 +1,16 @@
-"""DRF endpoints for the public catalog and authenticated inventory resources.
+"""DRF endpoints for the public catalog, seat inventory, and bookings.
 
-Movie and seat reads are public; movie and seat mutations require
-authentication. Booking creation and history require authentication and use
-the configured session authentication and CSRF behavior.
+Movie and seat reads are public. Movie and seat writes require
+authentication, and the same session authentication/CSRF rules apply to
+both. Booking creation and history require authentication and follow the
+configured DRF session auth and CSRF settings.
+
+Seat writes are exposed at ``/api/seats/`` and accept ``movie`` and
+``seat_number`` on create; ``status`` is server-controlled and always
+returned as ``available`` for new inventory. List reads still require a valid
+``?movie=<id>`` query parameter and return 400/404 for invalid or missing
+movie selectors. Delete requests return 409 if the seat is protected by a
+booking or a concurrent booking race is detected.
 """
 
 from __future__ import annotations
@@ -93,11 +101,12 @@ class SeatInventoryConflict(exceptions.APIException):
 
 
 class SeatViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
-    """Expose public seat reads and authenticated seat inventory mutations.
+    """Expose public seat reads and authenticated seat inventory writes.
 
-    Collection reads require a valid ``movie`` query value. Create, update,
-    and delete actions require authentication and preserve server-controlled
-    status values.
+    GET list/retrieve remain public, but create/update/delete require an
+    authenticated user. The ``/api/seats/`` collection still requires a valid
+    ``?movie=<id>`` parameter for list requests, while write requests validate
+    ``movie`` and ``seat_number`` and keep ``status`` server-controlled.
     """
 
     queryset = Seat.objects.select_related("movie").order_by(  # pylint: disable=no-member
