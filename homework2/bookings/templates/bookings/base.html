@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{% block title %}Movie Theater Booking{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load django_bootstrap5 %}
+    {% bootstrap_css %}
+    <style>
+      .skip-link {
+        position: fixed;
+        top: 0.5rem;
+        left: 1rem;
+        z-index: 1100;
+        padding: 0.625rem 0.875rem;
+        color: #fff;
+        background: #161616;
+        transform: translateY(-150%);
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 3px solid #0047ab;
+        outline-offset: 3px;
+      }
+
+      .site-navigation-links {
+        row-gap: 0.25rem;
+      }
+
+      main {
+        overflow-wrap: anywhere;
+      }
+
+      @media (max-width: 575.98px) {
+        .site-navigation {
+          align-items: flex-start;
+        }
+
+        .site-navigation-links {
+          flex-basis: 100%;
+          justify-content: flex-start;
+        }
+
+        .site-navigation-links .nav-link {
+          padding-inline: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="container py-4">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <nav class="navbar navbar-expand border-bottom mb-4 site-navigation" aria-label="Main navigation">
+      <a class="navbar-brand" href="{% url 'movie-list' %}">Movie Theater</a>
+      <div class="navbar-nav ms-auto site-navigation-links flex-row flex-wrap justify-content-end">
+        {% if user.is_authenticated %}
+          <span class="nav-link">{{ user.username }}</span>
+          <a class="nav-link" href="{% url 'booking-history' %}">
+            Booking history
+          </a>
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="nav-link border-0 bg-transparent" type="submit">
+              Sign out
+            </button>
+          </form>
+        {% else %}
+          <a class="nav-link" href="{% url 'login' %}">Sign in</a>
+          <a class="nav-link" href="{% url 'register' %}">Register</a>
+        {% endif %}
+      </div>
+    </nav>
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <main id="main-content">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

@@ -1,0 +1,84 @@
+<!--
+Sync Impact Report
+Version change: 1.4.0 -> 1.5.0
+Modified sections: Development Workflow and Quality Gates.
+Added guidance: Prefer the existing .venv interpreter for Pylint and related project commands.
+Removed sections: None.
+Follow-up TODO: Confirm the original ratification date.
+-->
+
+# Homework 2 Constitution
+
+## Core Principles
+
+### I. RESTful API Contracts
+The application MUST expose a resource-oriented REST API using appropriate HTTP methods,
+status codes, and media types. Endpoints MUST validate inputs and return consistent,
+documented response and error shapes. API contract changes MUST be reflected in source
+documentation and the README.
+
+### II. Source Code Documentation
+Source code MUST document modules and externally used functions, types, and API handlers
+with their purpose, inputs, outputs, and observable behavior. All Python modules,
+classes, and methods MUST include docstrings that describe their intent, responsibilities, and key behavior. Docstrings MUST be kept accurate as the implementation changes.
+
+Comments MUST explain non-obvious decisions, constraints, or workflow steps and MUST be updated when the behavior changes. Explanatory comments SHOULD be added when code logic, framework conventions, or business processes are not immediately clear to developers who are new to the stack, so the process is understandable without hidden knowledge.
+
+### III. README as Maintained Documentation
+The README MUST describe the application's purpose, setup, configuration, execution, and
+available API behavior. Any change that affects those instructions or the API contract
+MUST update the README in the same change.
+
+### IV. Test-Driven Development and Test Classification
+Test-driven development is NON-NEGOTIABLE for new behavior: contributors MUST write a
+test first, confirm that it fails for the expected reason, implement the behavior, and
+then refactor while keeping the test passing. Every new behavior MUST have a unit test.
+Integration tests MUST also cover behavior that crosses component boundaries, including
+API routing, persistence, authentication, or serialization, when those boundaries are
+affected. Every test MUST be explicitly marked as exactly one of `unit` or `integration`.
+
+### V. Secure Handling of Requests
+The application MUST treat request data as untrusted, validate it at the API boundary,
+and enforce authorization before exposing or changing protected resources. Secrets MUST
+not be stored in source code or returned in API responses.
+
+### VI. Visually Coherent and User-Friendly UI
+The application MUST provide a user-facing UI with a consistent visual language, clear
+information hierarchy, and intuitive task flows. UI controls MUST have clear labels and
+state or error feedback, support keyboard operation, and remain legible and operable at
+supported viewport sizes. UI changes MUST be reviewed for visual consistency,
+accessibility, and task-flow clarity.
+
+## API and Security Constraints
+API behavior MUST remain consistent across endpoints, especially for validation failures
+and not-found responses. Breaking contract changes MUST be identified in documentation
+and accompanied by a compatibility or migration note. Configuration and secrets MUST be
+provided outside source code.
+
+## Development Workflow and Quality Gates
+Before completing a change, contributors MUST run the relevant unit and integration
+tests and update source documentation and the README wherever behavior or setup has
+changed. Reviewers MUST check the API contract, security boundaries, test coverage, test
+classification, documentation impact, and UI usability for interface changes. New
+dependencies and abstractions MUST be limited to what the requirement needs.
+
+Python code MUST be verified with pylint and MUST pass with a score of 8.0 or higher.
+All Python code MUST adhere to PEP 8 style standards, including formatting, naming,
+line length, and readability expectations, and must be updated to fix linting or style
+violations before a change is considered complete.
+
+When the repository contains an existing `.venv`, contributors and Speckit agents MUST
+use its Python interpreter for Pylint and other project-dependent commands instead of
+relying on globally installed executables. For example, run
+`.venv/bin/python3.12 -m pylint .`; use the same interpreter for package installation,
+Django management commands, and tests so they run with the project's declared
+dependencies.
+
+## Governance
+This constitution governs project decisions and MUST be checked during planning and code
+review. Amendments MUST be reviewed, recorded in this file, and follow semantic versioning:
+MAJOR for incompatible governance changes, MINOR for new or materially expanded rules, and
+PATCH for clarifications that do not change requirements. Every amendment MUST update the
+last-amended date. The original ratification date remains unchanged.
+
+**Version**: 1.5.0 | **Ratified**: 2026-10-06: confirm original adoption date | **Last Amended**: 2026-10-07

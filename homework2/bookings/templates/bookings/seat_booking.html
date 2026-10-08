@@ -1,0 +1,16 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}Book a seat{% endblock %}
+
+{% block content %}
+  <h1 class="h2">Unable to complete booking</h1>
+  <div class="alert alert-danger" role="alert">
+    {{ form.non_field_errors }}
+    {% for field in form %}
+      {{ field.errors }}
+    {% endfor %}
+  </div>
+  <a class="btn btn-outline-primary" href="{% url 'movie-list' %}">
+    Return to movies
+  </a>
+{% endblock %}

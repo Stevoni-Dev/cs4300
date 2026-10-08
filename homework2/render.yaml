@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: movie-theater-booking
+    runtime: python
+    plan: free
+    rootDir: homework2
+    buildCommand: pip install -e . && python manage.py collectstatic --noinput
+    startCommand: python manage.py migrate --noinput && gunicorn movie_theater_booking.wsgi:application --bind 0.0.0.0:$PORT
+    healthCheckPath: /
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.3
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: movie-theater-booking-db
+          property: connectionString
+
+databases:
+  - name: movie-theater-booking-db
+    plan: basic-256mb
+    databaseName: movie_theater_booking
+    user: movie_theater_booking

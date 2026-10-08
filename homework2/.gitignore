@@ -1,0 +1,11 @@
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+db.sqlite3
+*.output
+features/reports/*.output
+staticfiles/

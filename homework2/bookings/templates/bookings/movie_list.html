@@ -1,0 +1,25 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}Movies{% endblock %}
+
+{% block content %}
+  <h1>Movie Listings</h1>
+
+  {% if movies %}
+    <ul class="list-group">
+      {% for movie in movies %}
+        <li class="list-group-item">
+          <h2><a href="/movies/{{ movie.pk }}/">{{ movie.title }}</a></h2>
+          <p>{{ movie.description }}</p>
+          <p><strong>Release date:</strong> {{ movie.release_date|date:"Y-m-d" }}</p>
+          <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+          <p><strong>Availability:</strong> {{ movie.available_seats_count }} available</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="alert alert-info" role="status">
+      No movies are available right now.
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["bookings*", "movie_theater_booking*"]
+
+[project]
+name = "movie-theater-booking"
+version = "0.1.0"
+description = "A Django application for movie listings and seat bookings."
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "Django>=5.2,<5.3",
+    "djangorestframework>=3.16,<4",
+    "behave-django>=1.4,<2",
+    "django-bootstrap5>=25.1,<26",
+    "gunicorn>=23,<24",
+    "whitenoise>=6.9,<7",
+    "dj-database-url>=2.3,<3",
+    "psycopg[binary]>=3.2,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pylint>=4,<5",
+    "pylint-django>=2.6,<3",
+    "pytest>=8,<9",
+    "pytest-django>=4.9,<5",
+    "python-dotenv>=1,<2",
+    "PyYAML>=6,<7",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "movie_theater_booking.settings"
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+markers = [
+    "unit: unit-level Django tests",
+    "integration: integration-level Django tests",
+]
+
+[tool.pylint.main]
+recursive = true
+ignore = [
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "build",
+    "dist",
+    "staticfiles",
+    "__pycache__",
+]
+ignore-paths = [
+    '(^|/)migrations/.*\\.py$',
+]
+ignored-modules = ["dotenv"]
+load-plugins = ["pylint_django"]
+django-settings-module = "movie_theater_booking.settings"
+
+[tool.pylint.format]
+max-line-length = 79
+
+[tool.pylint.design]
+min-public-methods = 0
+
+[tool.pylint.reports]
+fail-under = 8.1

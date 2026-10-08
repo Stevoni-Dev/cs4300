@@ -1,0 +1,56 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+  <h1>{{ movie.title }}</h1>
+  <p>{{ movie.description }}</p>
+  <p><strong>Release date:</strong> {{ movie.release_date|date:"Y-m-d" }}</p>
+  <p><strong>Duration:</strong> {{ movie.duration }} minutes</p>
+
+  <h2>Seat Availability</h2>
+  {% if seats %}
+    <ul class="list-group">
+      {% for seat in seats %}
+        <li class="list-group-item">
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <div>
+              <strong>{{ seat.seat_number }}</strong>
+              <span
+                class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}"
+                role="status"
+              >
+                {{ seat.get_status_display }}
+              </span>
+            </div>
+            {% if seat.status == 'available' %}
+              {% if user.is_authenticated %}
+                <form method="post" action="{% url 'booking-create' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="movie" value="{{ movie.pk }}">
+                  <input type="hidden" name="seat" value="{{ seat.pk }}">
+                  <button class="btn btn-primary btn-sm" type="submit">
+                    Book {{ seat.seat_number }}
+                  </button>
+                </form>
+              {% else %}
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">
+                  Sign in to book
+                </a>
+              {% endif %}
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+    {% if not has_available_seats %}
+      <div class="alert alert-warning" role="status">
+        No seats are currently available for this movie.
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="alert alert-warning" role="status">
+      No seats are available for this movie.
+    </div>
+  {% endif %}
+{% endblock %}
