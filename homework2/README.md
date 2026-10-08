@@ -92,16 +92,15 @@ DRF's configured authentication and permission responses.
 
 ## Render deployment
 
-The project is configured to read PostgreSQL connection details from `DATABASE_URL`,
-and includes Gunicorn, Psycopg, WhiteNoise, and static collection settings. A Render
-manifest and production static-file middleware are not yet present; complete those
-deployment settings before treating the service as production-ready. For a manual
-Render web service, use Python 3.12, install with `pip install -e .`, run migrations
-with `python manage.py migrate`, and start with
-`gunicorn movie_theater_booking.wsgi:application`. Configure a managed PostgreSQL
-database and set `DATABASE_URL`, `SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS`, and
-`CSRF_TRUSTED_ORIGINS` in the service environment. Never put production credentials in
-the repository.
+`render.yaml` defines a Render Blueprint with a Gunicorn web service and managed
+PostgreSQL database. To deploy, create a new Blueprint in Render from this repository
+and review the service and database plans before applying it. Render injects the
+database connection through `DATABASE_URL`; the start command applies migrations
+before launching Gunicorn. The build command installs the project and collects static
+assets. WhiteNoise serves the collected static files. The Blueprint sets `DEBUG=False`,
+generates `SECRET_KEY`, and configures Render host and CSRF origins. Never put production
+credentials in the repository. Review the selected Render plans and database retention
+terms before deploying.
 
 ## AI-use disclosure
 
