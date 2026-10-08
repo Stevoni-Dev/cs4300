@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, permissions, response, status, viewsets
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
+from rest_framework.pagination import PageNumberPagination
 
 from .models import Booking, Movie, Seat
 from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
@@ -17,6 +18,12 @@ class SeatConflictError(exceptions.APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = "The seat is unavailable."
     default_code = "seat_unavailable"
+
+
+class BookingHistoryPagination(PageNumberPagination):
+    """Paginate each user's booking history in pages of twenty records."""
+
+    page_size = 20
 
 
 class MovieViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
@@ -61,6 +68,7 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-an
 
 
 class BookingViewSet(
+    ListModelMixin,
     CreateModelMixin,
     viewsets.GenericViewSet,
 ):  # pylint: disable=too-many-ancestors
@@ -71,6 +79,15 @@ class BookingViewSet(
     )
     serializer_class = BookingSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = BookingHistoryPagination
+
+    def get_queryset(self):
+        """Return only the request user's bookings, newest first."""
+        return super().get_queryset().filter(  # pylint: disable=no-member
+            user=self.request.user
+        ).select_related(
+            "movie", "seat", "user"
+        ).order_by("-booking_date", "-pk")
 
     def perform_create(self, serializer):
         """Translate a lost seat claim into the documented 409 response."""

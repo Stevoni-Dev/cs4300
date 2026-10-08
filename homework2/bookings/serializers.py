@@ -48,6 +48,8 @@ class SeatSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-pu
 class BookingSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-public-methods
     """Accept a movie and seat while keeping owner and date server-controlled."""
 
+    movie_title = serializers.CharField(source="movie.title", read_only=True)
+    seat_number = serializers.CharField(source="seat.seat_number", read_only=True)
     movie = NotFoundPrimaryKeyRelatedField(
         queryset=Movie.objects.all(),  # pylint: disable=no-member
         pk_field=serializers.IntegerField(),
@@ -63,7 +65,15 @@ class BookingSerializer(serializers.ModelSerializer):  # pylint: disable=too-few
         """Define the API representation and writable booking inputs."""
 
         model = Booking
-        fields = ["id", "movie", "seat", "user", "booking_date"]
+        fields = [
+            "id",
+            "movie",
+            "seat",
+            "movie_title",
+            "seat_number",
+            "user",
+            "booking_date",
+        ]
 
     def validate(self, attrs):
         """Reject a seat that exists but belongs to a different movie."""
