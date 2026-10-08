@@ -120,7 +120,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 - [x] T032 [US3] Implement a DRF page-number paginator with page size 20 and `booking_date` descending ordering in `bookings/api.py`; serialize only records owned by `request.user` with `count`, `next`, `previous`, and `results`.
 - [x] T033 [US3] Implement the booking-history page in `bookings/views.py` and `bookings/templates/bookings/booking_history.html`, using the same user-scoped newest-first query and 20-item pagination as the API.
-- [ ] T034 [US3] Add booking-history navigation and empty-state presentation to `bookings/templates/bookings/base.html` and `booking_history.html` without exposing another user's data.
+- [x] T034 [US3] Add booking-history navigation and empty-state presentation to `bookings/templates/bookings/base.html` and `booking_history.html` without exposing another user's data.
 - [ ] T035 [US3] Run US3 unit, integration, and Behave tests; confirm pagination and empty responses match `contracts/api.md`.
 
 **Checkpoint**: Signed-in users can page through only their own newest-first history; empty API/page results are explicit.

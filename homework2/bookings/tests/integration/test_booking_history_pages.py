@@ -23,7 +23,7 @@ class TestBookingHistoryPages:
 
     @pytest.fixture
     def history(self):
-        """Create 21 owner bookings and a newer booking owned by someone else."""
+        """Create 21 owner bookings and another user's newer booking."""
         owner = User.objects.create_user(
             username="history-page-owner",
             password="valid-password-123",
@@ -41,7 +41,10 @@ class TestBookingHistoryPages:
         base_time = timezone.now()
         owner_bookings = []
         for index in range(21):
-            seat = Seat.objects.create(movie=movie, seat_number=f"P{index:02d}")
+            seat = Seat.objects.create(
+                movie=movie,
+                seat_number=f"P{index:02d}",
+            )
             booking = Booking.objects.create(
                 movie=movie,
                 seat=seat,
@@ -52,7 +55,10 @@ class TestBookingHistoryPages:
             )
             owner_bookings.append(booking)
 
-        private_seat = Seat.objects.create(movie=movie, seat_number="PRIVATE")
+        private_seat = Seat.objects.create(
+            movie=movie,
+            seat_number="PRIVATE",
+        )
         private_booking = Booking.objects.create(
             movie=movie,
             seat=private_seat,
@@ -63,8 +69,10 @@ class TestBookingHistoryPages:
         )
         return owner, owner_bookings, private_booking
 
-    def test_history_page_is_private_newest_first_and_paginated(self, history):
-        """The page shows only 20 newest owner bookings and a next-page link."""
+    def test_history_is_private_newest_first_and_paginated(
+        self, history
+    ):
+        """Show the 20 newest owner bookings and a next-page link."""
         owner, owner_bookings, private_booking = history
         client = Client()
         client.force_login(owner)
@@ -90,8 +98,20 @@ class TestBookingHistoryPages:
         assert "page=1" in second_page
         assert len(owner_bookings) == 21
 
+    def test_signed_in_navigation_links_to_booking_history(self, history):
+        """The shared navigation gives signed-in users a history link."""
+        owner, _, _ = history
+        client = Client()
+        client.force_login(owner)
+
+        response = client.get("/")
+
+        assert response.status_code == 200
+        assert b'href="/bookings/history/"' in response.content
+        assert b"Booking history" in response.content
+
     def test_empty_history_page_has_helpful_empty_state(self):
-        """A signed-in user without bookings sees an informative empty state."""
+        """A signed-in user without bookings sees the empty state."""
         user = User.objects.create_user(
             username="empty-history-page",
             password="valid-password-123",
@@ -104,3 +124,5 @@ class TestBookingHistoryPages:
         assert response.status_code == 200
         page = response.content.decode().lower()
         assert "no bookings" in page or "no booking history" in page
+        assert 'href="/movies/"' in page
+        assert "browse movies" in page
