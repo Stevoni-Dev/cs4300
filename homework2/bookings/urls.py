@@ -20,6 +20,7 @@ router.register(r"bookings", BookingViewSet, basename="booking")
 
 urlpatterns = [
     path("api/", include(router.urls)),
+    path("", movie_list_view, name="home"),
     path("movies/", movie_list_view, name="movie-list"),
     path("movies/<int:pk>/", movie_detail_view, name="movie-detail"),
     path("register/", registration_view, name="register"),
