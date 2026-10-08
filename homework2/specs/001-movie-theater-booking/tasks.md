@@ -93,7 +93,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - [x] T024 [US2] Implement the shared atomic booking operation in `bookings/services.py`; verify the seat belongs to the movie, conditionally claim only an `available` seat, create the booking for the authenticated user, and roll back both writes on failure.
 - [x] T025 [US2] Implement booking serializer and create endpoint in `bookings/serializers.py` and `bookings/api.py`; ignore client-supplied user/date, enforce authentication/CSRF through DRF, preserve its standard authentication/permission responses, and map booking-domain failures to `400`, `404`, or `409` as specified.
 - [x] T026 [US2] Implement seat booking form handling and registration/sign-in/booking templates in `bookings/views.py` and `bookings/templates/bookings/registration.html`, `login.html`, and `seat_booking.html`; call `bookings/services.py` so HTML and API share reservation rules.
-- [ ] T027 [US2] Run the US2 unit, API/page integration, and Behave tests; confirm the booking story passes independently after the US1 foundations.
+- [x] T027 [US2] Run the US2 unit, API/page integration, and Behave tests; confirm the booking story passes independently after the US1 foundations.
 
 **Checkpoint**: A visitor can register/sign in and a signed-in user can book multiple distinct seats; any seat already reserved by any user can succeed only once.
 
