@@ -1,7 +1,12 @@
 """Integration tests for authenticated seat inventory API behavior."""
 
+from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import patch
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.db import connection, connections
+from django.db.models.deletion import Collector
 from rest_framework.test import APIClient
 
 from bookings.models import Booking, Movie, Seat
@@ -90,13 +95,13 @@ class TestSeatCrudApi:
         assert replace.json()["seat_number"] == "A2"
         assert replace.json()["status"] == Seat.STATUS_AVAILABLE
 
-        patch = client.patch(
+        partial_update = client.patch(
             f"/api/seats/{seat_id}/",
             {"seat_number": "A3"},
             format="json",
         )
-        assert patch.status_code == 200
-        assert patch.json()["seat_number"] == "A3"
+        assert partial_update.status_code == 200
+        assert partial_update.json()["seat_number"] == "A3"
 
         public_list = APIClient().get("/api/seats/", {"movie": movie.pk})
         assert public_list.status_code == 200
@@ -343,3 +348,53 @@ def test_existing_seat_list_query_contract_is_unchanged():
     assert empty.status_code == 200
     assert empty.json() == []
     assert client.get(f"/api/seats/{999999}/").status_code == 404
+
+
+@pytest.mark.integration
+@pytest.mark.django_db(transaction=True)
+@pytest.mark.skipif(
+    connection.vendor != "postgresql",
+    reason="The delete-versus-booking race must be validated on PostgreSQL.",
+)
+def test_booking_committed_during_seat_delete_returns_conflict():
+    """A concurrent booking cannot turn deletion into an API 500.
+
+    The second connection commits the booking after Django collects protected
+    relations but before the pending seat DELETE reaches PostgreSQL.
+    """
+    movie = Movie.objects.create(
+        title="Delete race",
+        description="A booking races with inventory deletion.",
+        release_date="2026-10-08",
+        duration=100,
+    )
+    seat = Seat.objects.create(movie=movie, seat_number="R1")
+    user = User.objects.create_user(
+        username="seat-delete-race-booker",
+        password="valid-password-123",
+    )
+    client = APIClient()
+    client.force_login(user)
+    original_delete = Collector.delete
+
+    def commit_booking_then_delete(collector):
+        """Insert a booking between relation collection and row deletion."""
+        if Seat in collector.data and seat in collector.data[Seat]:
+            def create_booking_on_separate_connection():
+                """Commit using the worker thread's separate DB connection."""
+                connections.close_all()
+                Booking.objects.create(movie=movie, seat=seat, user=user)
+                connections.close_all()
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                executor.submit(
+                    create_booking_on_separate_connection
+                ).result(timeout=10)
+        return original_delete(collector)
+
+    with patch.object(Collector, "delete", commit_booking_then_delete):
+        response = client.delete(f"/api/seats/{seat.pk}/")
+
+    assert response.status_code == 409
+    assert Seat.objects.filter(pk=seat.pk).exists()
+    assert Booking.objects.filter(seat=seat, user=user).exists()
