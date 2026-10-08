@@ -3,8 +3,9 @@ services:
     name: movie-theater-booking
     runtime: python
     plan: free
+    rootDir: homework2
     buildCommand: pip install -e . && python manage.py collectstatic --noinput
-    startCommand: python manage.py migrate --noinput && gunicorn movie_theater_booking.wsgi:application
+    startCommand: python manage.py migrate --noinput && gunicorn movie_theater_booking.wsgi:application --bind 0.0.0.0:$PORT
     healthCheckPath: /
     envVars:
       - key: PYTHON_VERSION
