@@ -174,7 +174,8 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 
 - Each movie represents one bookable event in phase one and has one seat inventory. Multiple showtimes, screenings, and auditoriums are out of scope.
 - The application provides user registration and sign-in in phase one. The account details and sign-in method are not defined by this feature.
-- Movie catalog CRUD is in scope for phase one through the movie API and uses the existing single user role; no separate administrator role or movie-management page is introduced. Seat inventory is provisioned separately and is not managed through this phase-one API.
+- Movie catalog CRUD is in scope for phase one through the movie API and uses the existing single user role; no separate administrator role or movie-management page is introduced. 
+- Seat inventory CRUD is in scope for phase one through the seats API and uses the existing single user role; no separate administrator role or seat-management page is introduced
 - Render is a phase-one deployment target; deployment configuration, instructions, and validation are in scope.
 - Render deployment uses PostgreSQL so movie, seat, user, and booking data persist across service restarts; local development may use SQLite.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.
