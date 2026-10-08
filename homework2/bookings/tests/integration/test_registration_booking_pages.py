@@ -60,6 +60,8 @@ class TestRegistrationBookingPages:
 
         assert response.status_code == 200
         assert set(response.context["form"].errors) == {"password2"}
+        content = response.content.decode()
+        assert "errorlist" in content
         assert not User.objects.filter(username="new-page-user").exists()
 
     def test_registration_accepts_valid_csrf_token_and_creates_account(self):
@@ -127,6 +129,9 @@ class TestRegistrationBookingPages:
             response = client.post("/login/", credentials)
             assert response.status_code == 200
             feedback.append(str(response.context["form"].non_field_errors()))
+            assert "invalid username or password" in (
+                response.content.decode().lower()
+            )
             assert "_auth_user_id" not in client.session
 
         assert feedback[0] == feedback[1]
@@ -145,7 +150,9 @@ class TestRegistrationBookingPages:
         )
 
         assert response.status_code == 200
-        assert "booking confirmed" in response.content.decode().lower()
+        content = response.content.decode().lower()
+        assert "booking confirmed" in content
+        assert 'role="status"' in content
         assert Booking.objects.get(seat=seat).user == user
         seat.refresh_from_db()
         assert seat.status == Seat.STATUS_RESERVED
@@ -187,5 +194,7 @@ class TestRegistrationBookingPages:
         )
 
         assert response.status_code == 200
-        assert "unavailable" in response.content.decode().lower()
+        content = response.content.decode().lower()
+        assert "unavailable" in content
+        assert 'role="alert"' in content
         assert Booking.objects.filter(seat=seat).count() == 1

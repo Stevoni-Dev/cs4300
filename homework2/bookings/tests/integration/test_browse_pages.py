@@ -24,6 +24,21 @@ class TestBrowsePages:
         assert response.status_code == 200
         assert "Dune" in response.content.decode()
 
+    def test_shared_layout_supports_keyboard_focus_and_small_viewports(
+        self, client
+    ):
+        """The shared layout exposes skip navigation, focus, and wrapping."""
+        response = client.get("/")
+        content = response.content.decode()
+
+        assert 'href="#main-content"' in content
+        assert '<main id="main-content">' in content
+        assert 'aria-label="Main navigation"' in content
+        assert 'site-navigation-links flex-row flex-wrap' in content
+        assert ".skip-link:focus" in content
+        assert ":focus-visible" in content
+        assert "@media (max-width: 575.98px)" in content
+
     def test_movie_listing_page_shows_movies(self, client):
         """The browse page should show available movies."""
         movie = Movie.objects.create(  # pylint: disable=no-member
@@ -74,6 +89,28 @@ class TestBrowsePages:
         assert 'aria-label="Seat B4: Available"' not in content
         assert 'aria-label="Seat B5: Reserved"' not in content
 
+    def test_movie_detail_explains_when_all_seats_are_reserved(self, client):
+        """A full inventory has a clear status and no booking action."""
+        movie = Movie.objects.create(
+            title="Full House",
+            description="Every seat has been reserved.",
+            release_date="2026-10-12",
+            duration=100,
+        )
+        Seat.objects.create(
+            movie=movie,
+            seat_number="C1",
+            status=Seat.STATUS_RESERVED,
+        )
+
+        response = client.get(f"/movies/{movie.pk}/")
+
+        assert response.status_code == 200
+        content = response.content.decode()
+        assert "No seats are currently available" in content
+        assert 'role="status"' in content
+        assert "Book C1" not in content
+
     def test_empty_movie_listing_page_has_helpful_message(self, client):
         """A page with no movies should show an empty state."""
         response = client.get("/movies/")
@@ -81,3 +118,4 @@ class TestBrowsePages:
         assert response.status_code == 200
         content = response.content.decode().lower()
         assert "no movies" in content or "empty" in content
+        assert 'role="status"' in content

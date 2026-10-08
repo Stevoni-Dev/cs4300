@@ -49,12 +49,14 @@ def movie_detail_view(request, pk):
     """
     movie = get_object_or_404(Movie, pk=pk)
     seats = movie.seats.order_by("seat_number")
+    has_available_seats = seats.filter(status="available").exists()
     return render(
         request,
         "bookings/movie_detail.html",
         {
             "movie": movie,
             "seats": seats,
+            "has_available_seats": has_available_seats,
         },
     )
 
