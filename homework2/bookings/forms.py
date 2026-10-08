@@ -6,6 +6,8 @@ from django import forms
 from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
+from .models import Movie, Seat
+
 
 User = get_user_model()
 
@@ -50,3 +52,27 @@ class SignInForm(forms.Form):
     def get_user(self):
         """Return the authenticated account, or ``None`` after failure."""
         return self.user
+
+
+class SeatBookingForm(forms.Form):
+    """Validate that a submitted seat belongs to its selected movie."""
+
+    movie = forms.ModelChoiceField(
+        queryset=Movie.objects.all(),  # pylint: disable=no-member
+        widget=forms.HiddenInput,
+    )
+    seat = forms.ModelChoiceField(
+        queryset=Seat.objects.all(),  # pylint: disable=no-member
+        widget=forms.HiddenInput,
+    )
+
+    def clean(self):
+        """Reject a real seat that is outside the selected movie inventory."""
+        cleaned_data = super().clean()
+        movie = cleaned_data.get("movie")
+        seat = cleaned_data.get("seat")
+        if movie is not None and seat is not None and seat.movie_id != movie.pk:
+            raise forms.ValidationError(
+                "The selected seat does not belong to this movie."
+            )
+        return cleaned_data

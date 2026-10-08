@@ -13,13 +13,33 @@
     <ul class="list-group">
       {% for seat in seats %}
         <li class="list-group-item">
-          <strong>{{ seat.seat_number }}</strong>
-          <span
-            class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}"
-            role="status"
-          >
-            {{ seat.get_status_display }}
-          </span>
+          <div class="d-flex align-items-center justify-content-between gap-3">
+            <div>
+              <strong>{{ seat.seat_number }}</strong>
+              <span
+                class="badge {% if seat.status == 'available' %}bg-success{% else %}bg-secondary{% endif %}"
+                role="status"
+              >
+                {{ seat.get_status_display }}
+              </span>
+            </div>
+            {% if seat.status == 'available' %}
+              {% if user.is_authenticated %}
+                <form method="post" action="{% url 'booking-create' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="movie" value="{{ movie.pk }}">
+                  <input type="hidden" name="seat" value="{{ seat.pk }}">
+                  <button class="btn btn-primary btn-sm" type="submit">
+                    Book {{ seat.seat_number }}
+                  </button>
+                </form>
+              {% else %}
+                <a class="btn btn-outline-primary btn-sm" href="{% url 'login' %}">
+                  Sign in to book
+                </a>
+              {% endif %}
+            {% endif %}
+          </div>
         </li>
       {% endfor %}
     </ul>

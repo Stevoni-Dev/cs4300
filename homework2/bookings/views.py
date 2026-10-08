@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
-from django.contrib.auth import login
+from django.contrib import messages
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import RegistrationForm, SignInForm
+from .forms import RegistrationForm, SeatBookingForm, SignInForm
 from .models import Movie
+from .services import SeatUnavailableError, create_booking
 
 
 def movie_list_view(request):
@@ -63,3 +67,37 @@ def login_view(request):
         "bookings/login.html",
         {"form": form},
     )
+
+
+@require_POST
+def logout_view(request):
+    """End the current authenticated session through a CSRF-protected POST."""
+    logout(request)
+    return redirect("movie-list")
+
+
+@login_required(login_url="login")
+@require_POST
+def booking_create_view(request):
+    """Reserve one movie seat through the shared booking service."""
+    form = SeatBookingForm(request.POST)
+    if not form.is_valid():
+        return render(
+            request,
+            "bookings/seat_booking.html",
+            {"form": form},
+            status=400,
+        )
+
+    movie = form.cleaned_data["movie"]
+    seat = form.cleaned_data["seat"]
+    try:
+        create_booking(user=request.user, movie=movie, seat=seat)
+    except SeatUnavailableError:
+        messages.error(request, f"Seat {seat.seat_number} is unavailable.")
+    else:
+        messages.success(
+            request,
+            f"Booking confirmed for seat {seat.seat_number}.",
+        )
+    return redirect("movie-detail", pk=movie.pk)

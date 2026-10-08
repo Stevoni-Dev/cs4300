@@ -6,6 +6,8 @@ from rest_framework.routers import DefaultRouter
 from .api import BookingViewSet, MovieViewSet, SeatViewSet
 from .views import (
     login_view,
+    logout_view,
+    booking_create_view,
     movie_detail_view,
     movie_list_view,
     registration_view,
@@ -22,4 +24,6 @@ urlpatterns = [
     path("movies/<int:pk>/", movie_detail_view, name="movie-detail"),
     path("register/", registration_view, name="register"),
     path("login/", login_view, name="login"),
+    path("logout/", logout_view, name="logout"),
+    path("bookings/", booking_create_view, name="booking-create"),
 ]
