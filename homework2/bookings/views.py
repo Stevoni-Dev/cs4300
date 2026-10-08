@@ -1,4 +1,4 @@
-"""Public movie browsing views for visitors."""
+"""Server-rendered movie, account, reservation, and history page handlers."""
 
 from __future__ import annotations
 
@@ -15,7 +15,14 @@ from .services import SeatUnavailableError, create_booking
 
 
 def movie_list_view(request):
-    """Display the list of available movies to visitors."""
+    """Render the public movie catalog, ordered for browsing.
+
+    Args:
+        request: Incoming Django request.
+
+    Returns:
+        The movie listing response with available-seat counts.
+    """
     movies = Movie.objects.order_by(  # pylint: disable=no-member
         "release_date", "title"
     )
@@ -31,7 +38,15 @@ def movie_list_view(request):
 
 
 def movie_detail_view(request, pk):
-    """Display a movie and label its reserved and available seats."""
+    """Render one movie and its seat status labels.
+
+    Args:
+        request: Incoming Django request.
+        pk: Primary key of the movie to display.
+
+    Returns:
+        The movie detail response, or HTTP 404 for an unknown movie.
+    """
     movie = get_object_or_404(Movie, pk=pk)
     seats = movie.seats.order_by("seat_number")
     return render(
@@ -45,7 +60,14 @@ def movie_detail_view(request, pk):
 
 
 def registration_view(request):
-    """Register a user after validating the submitted account details."""
+    """Render registration errors or save a valid new account.
+
+    Args:
+        request: GET renders a blank form; POST validates the submitted data.
+
+    Returns:
+        The registration page, or a redirect to sign-in after successful save.
+    """
     form = RegistrationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
         form.save()
@@ -58,7 +80,14 @@ def registration_view(request):
 
 
 def login_view(request):
-    """Sign a user in only after valid credentials are confirmed."""
+    """Authenticate credentials and establish a Django session on success.
+
+    Args:
+        request: GET renders the form; POST validates credentials.
+
+    Returns:
+        The sign-in page with generic errors or a redirect to the movie list.
+    """
     form = SignInForm(request.POST or None, request=request)
     if request.method == "POST" and form.is_valid():
         login(request, form.get_user())
@@ -72,7 +101,14 @@ def login_view(request):
 
 @require_POST
 def logout_view(request):
-    """End the current authenticated session through a CSRF-protected POST."""
+    """End the current session on a CSRF-protected POST.
+
+    Args:
+        request: POST request from the current browser session.
+
+    Returns:
+        A redirect to the public movie list.
+    """
     logout(request)
     return redirect("movie-list")
 
@@ -80,7 +116,15 @@ def logout_view(request):
 @login_required(login_url="login")
 @require_POST
 def booking_create_view(request):
-    """Reserve one movie seat through the shared booking service."""
+    """Book one seat for a signed-in user through the shared domain service.
+
+    Args:
+        request: POST with movie and seat IDs; login and CSRF are required.
+
+    Returns:
+        A redirect to the movie detail page with success/conflict messaging,
+        or a 400 response containing invalid form fields.
+    """
     form = SeatBookingForm(request.POST)
     if not form.is_valid():
         return render(
@@ -106,7 +150,14 @@ def booking_create_view(request):
 
 @login_required(login_url="login")
 def booking_history_view(request):
-    """Display only the signed-in user's newest bookings, 20 per page."""
+    """Render the signed-in user's history newest first, 20 records per page.
+
+    Args:
+        request: Authenticated request with an optional ``page`` query value.
+
+    Returns:
+        The private booking history page with an empty state when appropriate.
+    """
     booking_list = Booking.objects.filter(  # pylint: disable=no-member
         user=request.user
     ).select_related(

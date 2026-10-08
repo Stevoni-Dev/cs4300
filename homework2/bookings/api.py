@@ -1,4 +1,9 @@
-"""Public read-only DRF viewsets for movies and seats."""
+"""DRF endpoints for the public catalog and protected booking resources.
+
+Movie and seat reads are public; movie mutations require authentication.
+Booking creation and history require authentication and use the configured
+session authentication and CSRF behavior.
+"""
 
 from __future__ import annotations
 
@@ -14,7 +19,7 @@ from .services import SeatUnavailableError
 
 
 class SeatConflictError(exceptions.APIException):
-    """Represent an unavailable seat as the contract's conflict response."""
+    """Return HTTP 409 when an atomic seat claim loses an availability race."""
 
     status_code = status.HTTP_409_CONFLICT
     default_detail = "The seat is unavailable."
@@ -22,7 +27,7 @@ class SeatConflictError(exceptions.APIException):
 
 
 class MovieBookingHistoryConflict(exceptions.APIException):
-    """Represent a protected movie deletion as an HTTP 409 conflict."""
+    """Return HTTP 409 when booking history prevents movie deletion."""
 
     status_code = status.HTTP_409_CONFLICT
     default_detail = "Movies with booking history cannot be deleted."
@@ -30,13 +35,21 @@ class MovieBookingHistoryConflict(exceptions.APIException):
 
 
 class BookingHistoryPagination(PageNumberPagination):
-    """Paginate each user's booking history in pages of twenty records."""
+    """Return booking history in page-number pages of 20 records.
+
+    DRF supplies ``count``, ``next``, ``previous``, and ``results`` in the
+    response; clients select the page with the ``page`` query parameter.
+    """
 
     page_size = 20
 
 
 class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
-    """Expose public movie reads and authenticated catalog writes."""
+    """Expose public movie reads and authenticated catalog mutations.
+
+    List and detail actions permit anonymous access. Create, replace, partial
+    update, and delete actions require an authenticated user.
+    """
 
     queryset = Movie.objects.all().order_by(  # pylint: disable=no-member
         "release_date", "title"
@@ -44,7 +57,11 @@ class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
     serializer_class = MovieSerializer
 
     def get_permissions(self):
-        """Allow public reads while protecting every movie mutation."""
+        """Select public-read or authenticated-write permissions by action.
+
+        Returns:
+            Permission instances configured for the current router action.
+        """
         if self.action in {"list", "retrieve"}:
             permission_classes = [permissions.AllowAny]
         else:
@@ -52,7 +69,14 @@ class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
         return [permission() for permission in permission_classes]
 
     def perform_destroy(self, instance):
-        """Preserve booking history and report deletion conflicts."""
+        """Delete an unbooked movie or return conflict for protected history.
+
+        Args:
+            instance: The movie resolved by DRF for the delete request.
+
+        Raises:
+            MovieBookingHistoryConflict: If any booking references the movie.
+        """
         try:
             instance.delete()
         except ProtectedError as exc:
@@ -60,7 +84,11 @@ class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
 
 
 class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
-    """Public movie-scoped seat list and detail endpoints."""
+    """Expose public seat detail and movie-scoped availability reads.
+
+    Seat inventory is provisioned separately; this API does not create or
+    mutate seats. Collection requests require a valid ``movie`` query value.
+    """
 
     queryset = Seat.objects.select_related("movie").order_by(  # pylint: disable=no-member
         "movie_id", "seat_number"
@@ -69,6 +97,18 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-an
     permission_classes = [permissions.AllowAny]
 
     def list(self, request, *args, **kwargs):
+        """List seats for one movie or return a validation/not-found response.
+
+        Args:
+            request: DRF request with a ``movie`` query parameter.
+
+        Returns:
+            A JSON array of seats belonging to the requested movie.
+
+        Raises:
+            ValidationError: If ``movie`` is missing or not an integer.
+            Http404: If the movie ID does not exist.
+        """
         movie_id = request.query_params.get("movie")
         if movie_id is None:
             raise exceptions.ValidationError(
@@ -95,7 +135,11 @@ class BookingViewSet(
     CreateModelMixin,
     viewsets.GenericViewSet,
 ):  # pylint: disable=too-many-ancestors
-    """Create one booking for the authenticated user."""
+    """List the authenticated user's history and create their bookings.
+
+    GET results are user-scoped, newest first, and paginated. POST accepts a
+    movie and seat; ownership and booking time are assigned server-side.
+    """
 
     queryset = Booking.objects.select_related(  # pylint: disable=no-member
         "movie", "seat", "user"
@@ -105,7 +149,12 @@ class BookingViewSet(
     pagination_class = BookingHistoryPagination
 
     def get_queryset(self):
-        """Return only the request user's bookings, newest first."""
+        """Return the authenticated user's bookings, newest first.
+
+        Returns:
+            Booking rows for ``request.user``, with related
+            display data loaded.
+        """
         return super().get_queryset().filter(  # pylint: disable=no-member
             user=self.request.user
         ).select_related(
@@ -113,7 +162,11 @@ class BookingViewSet(
         ).order_by("-booking_date", "-pk")
 
     def perform_create(self, serializer):
-        """Translate a lost seat claim into the documented 409 response."""
+        """Persist a booking and translate unavailable seats to HTTP 409.
+
+        Args:
+            serializer: Validated booking serializer using the request user.
+        """
         try:
             serializer.save()
         except SeatUnavailableError as exc:

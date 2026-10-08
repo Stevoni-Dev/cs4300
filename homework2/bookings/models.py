@@ -19,6 +19,12 @@ class Movie(models.Model):
     )
 
     def clean(self):
+        """Reject whitespace-only text fields during model validation.
+
+        ``full_clean()`` reports errors under ``title`` or ``description``;
+        callers should validate before saving when constructing models outside
+        serializer or form validation.
+        """
         super().clean()
         if (
             self.title is not None
@@ -31,6 +37,7 @@ class Movie(models.Model):
             )
 
     def __str__(self) -> str:
+        """Return the movie's display title."""
         return str(self.title)
 
 
@@ -69,6 +76,11 @@ class Seat(models.Model):  # pylint: disable=too-few-public-methods
         ]
 
     def clean(self):
+        """Reject a blank seat label during model validation.
+
+        Database uniqueness for a seat label within one movie is enforced by
+        the ``unique_movie_seat_number`` constraint.
+        """
         super().clean()
         if (
             not self.seat_number
@@ -79,11 +91,16 @@ class Seat(models.Model):  # pylint: disable=too-few-public-methods
             )
 
     def __str__(self) -> str:
+        """Return a movie-scoped seat identifier for logs and admin lists."""
         return f"{self.movie_id}:{self.seat_number}"  # pylint: disable=no-member
 
 
 class Booking(models.Model):
-    """A confirmed reservation owned by a user for one movie seat."""
+    """A confirmed reservation connecting a user, movie, and unique seat.
+
+    ``booking_date`` is assigned by Django at insertion. The protected movie
+    and seat relations preserve records referenced by booking history.
+    """
 
     movie = models.ForeignKey(
         Movie,
@@ -103,6 +120,7 @@ class Booking(models.Model):
     booking_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
+        """Return a concise movie, seat, and owner description."""
         return (  # pylint: disable=no-member
             f"{self.movie.title} - {self.seat.seat_number} ({self.user})"
         )

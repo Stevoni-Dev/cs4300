@@ -7,16 +7,28 @@ from .models import Booking, Movie, Seat
 
 
 class SeatUnavailableError(Exception):
-    """Raised when a seat is no longer available for booking."""
+    """Signal that an atomic attempt could not claim an available seat."""
 
 
 @transaction.atomic
 def create_booking(*, user, movie: Movie, seat: Seat) -> Booking:
-    """Claim an available seat and create its booking as one transaction.
+    """Atomically claim an available seat and persist its booking.
 
     The conditional update is the concurrency boundary: only one request can
     change a given seat from available to reserved. If creating the Booking
     fails, the transaction rolls the seat status back as well.
+
+    Args:
+        user: Authenticated Django user who owns the booking.
+        movie: Movie selected for the reservation.
+        seat: Seat to claim; it must belong to ``movie``.
+
+    Returns:
+        The newly persisted Booking instance.
+
+    Raises:
+        ValidationError: If the seat does not belong to the selected movie.
+        SeatUnavailableError: If the seat is not currently available.
     """
     if not Seat.objects.filter(  # pylint: disable=no-member
         pk=seat.pk, movie=movie

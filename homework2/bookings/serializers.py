@@ -1,4 +1,9 @@
-"""Serializers for public movie and seat reads."""
+"""Serialize public catalog reads, catalog writes, and booking requests.
+
+Movie fields are validated on create and update. Booking ownership and time
+remain server-controlled; unknown movie or seat identifiers return not-found
+responses before the shared booking service claims inventory.
+"""
 
 from __future__ import annotations
 
@@ -11,9 +16,15 @@ from .services import create_booking
 class NotFoundPrimaryKeyRelatedField(  # pylint: disable=too-few-public-methods
     serializers.PrimaryKeyRelatedField
 ):
-    """Resolve a related model by id and return 404 when it is missing."""
+    """Resolve a related model identifier with API not-found semantics.
+
+    ``queryset`` supplies the model lookup. Invalid primary-key syntax remains
+    a serializer validation error; a well-formed but absent identifier raises
+    DRF's ``NotFound`` exception and produces HTTP 404.
+    """
 
     def to_internal_value(self, data):
+        """Convert a submitted primary key to an instance or API exception."""
         if self.pk_field is not None:
             data = self.pk_field.to_internal_value(data)
         queryset = self.get_queryset()
@@ -26,7 +37,12 @@ class NotFoundPrimaryKeyRelatedField(  # pylint: disable=too-few-public-methods
 
 
 class MovieSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-public-methods
-    """Validate movie catalog writes and serialize public movie details."""
+    """Validate movie writes and serialize public catalog fields.
+
+    Create and update operations require a nonblank title of at most 200
+    characters, a nonblank description, an ISO date, and positive integer
+    duration. Read responses include the same fields plus the database ID.
+    """
 
     title = serializers.CharField(
         max_length=200,
@@ -50,7 +66,7 @@ class MovieSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-p
 class SeatSerializer(
     serializers.ModelSerializer
 ):  # pylint: disable=too-few-public-methods
-    """Public representation of a seat and its current availability."""
+    """Serialize a seat's ID, movie ID, label, and availability state."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Fields included in a seat response."""
@@ -62,7 +78,12 @@ class SeatSerializer(
 class BookingSerializer(
     serializers.ModelSerializer
 ):  # pylint: disable=too-few-public-methods
-    """Accept a movie and seat; keep owner and date server-controlled."""
+    """Serialize bookings while keeping owner and date server-controlled.
+
+    Create requests accept movie and seat primary keys. The authenticated
+    request user and server timestamp are read-only; responses also include
+    movie title and seat label for history display.
+    """
 
     movie_title = serializers.CharField(
         source="movie.title",
@@ -98,7 +119,17 @@ class BookingSerializer(
         ]
 
     def validate(self, attrs):
-        """Reject a seat that exists but belongs to a different movie."""
+        """Reject existing seats that do not belong to the selected movie.
+
+        Args:
+            attrs: Validated movie and seat model instances.
+
+        Returns:
+            The validated fields when their movie/seat relationship is valid.
+
+        Raises:
+            serializers.ValidationError: If the seat belongs to another movie.
+        """
         if attrs["seat"].movie_id != attrs["movie"].pk:
             raise serializers.ValidationError(
                 {"seat": "The selected seat does not belong to this movie."}
@@ -106,7 +137,18 @@ class BookingSerializer(
         return attrs
 
     def create(self, validated_data):
-        """Delegate reservation rules to the shared booking service."""
+        """Create a booking through the shared atomic reservation service.
+
+        Args:
+            validated_data: Validated movie and seat instances.
+
+        Returns:
+            The persisted Booking owned by the authenticated request user.
+
+        Raises:
+            ValidationError: If the seat/movie relationship is invalid.
+            SeatUnavailableError: If the seat can no longer be claimed.
+        """
         return create_booking(
             user=self.context["request"].user,
             movie=validated_data["movie"],
