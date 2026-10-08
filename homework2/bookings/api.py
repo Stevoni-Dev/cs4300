@@ -26,14 +26,21 @@ class BookingHistoryPagination(PageNumberPagination):
     page_size = 20
 
 
-class MovieViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
-    """Public movie list and detail endpoints."""
+class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
+    """Expose public movie reads and authenticated catalog writes."""
 
     queryset = Movie.objects.all().order_by(  # pylint: disable=no-member
         "release_date", "title"
     )
     serializer_class = MovieSerializer
-    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        """Allow public reads while protecting every movie mutation."""
+        if self.action in {"list", "retrieve"}:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
