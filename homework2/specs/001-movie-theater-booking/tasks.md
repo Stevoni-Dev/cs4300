@@ -135,9 +135,9 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ### Tests for User Story 4 (TDD - write and observe failures first)
 
-- [ ] T036 [P] [US4] Add unit tests in `bookings/tests/unit/test_movie_crud.py` for required fields, positive duration/date validation, partial update validation, and delete protection when bookings exist; mark `unit`.
-- [ ] T037 [P] [US4] Add API integration tests in `bookings/tests/integration/test_movie_crud_api.py` for list/retrieve/create/update/partial-update/delete, anonymous write rejection according to configured DRF classes, invalid-field `400`, missing-resource `404`, delete-with-bookings `409`, and public listing consistency; mark `integration`.
-- [ ] T038 [P] [US4] Add `@integration` Behave scenarios in `features/booking.feature` and `features/steps/booking_steps.py` for signed-in catalog creation/update/deletion, preservation after bookings, and anonymous write rejection.
+- [x] T036 [P] [US4] Add unit tests in `bookings/tests/unit/test_movie_crud.py` for required fields, positive duration/date validation, partial update validation, and delete protection when bookings exist; mark `unit`.
+- [x] T037 [P] [US4] Add API integration tests in `bookings/tests/integration/test_movie_crud_api.py` for list/retrieve/create/update/partial-update/delete, anonymous write rejection according to configured DRF classes, invalid-field `400`, missing-resource `404`, delete-with-bookings `409`, and public listing consistency; mark `integration`.
+- [x] T038 [P] [US4] Add `@integration` Behave scenarios in `features/booking.feature` and `features/steps/booking_steps.py` for signed-in catalog creation/update/deletion, preservation after bookings, and anonymous write rejection.
 
 ### Implementation for User Story 4
 

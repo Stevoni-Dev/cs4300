@@ -49,3 +49,25 @@ Feature: Reserve movie seats
     Given signed-in account "empty-history-reader" has no bookings
     When the account opens booking history
     Then the history page shows the empty state
+
+  @integration
+  Scenario: A signed-in user manages the movie catalog
+    Given signed-in account "catalog-manager" can manage movies
+    When the catalog manager creates movie "Catalog Feature"
+    Then the movie is created successfully
+    When the catalog manager updates the movie title to "Catalog Feature Revised"
+    Then the movie update is visible in the public catalog
+    When the catalog manager deletes the movie
+    Then the movie is no longer in the catalog
+
+  @integration
+  Scenario: A movie with booking history cannot be deleted
+    Given signed-in account "catalog-protector" has a movie with booking history
+    When the catalog manager deletes that movie
+    Then deletion is rejected and the booking history is preserved
+
+  @integration
+  Scenario: Anonymous visitors cannot write to the movie catalog
+    Given movie "Protected Catalog Movie" exists
+    When an anonymous visitor attempts movie create update and delete requests
+    Then all anonymous movie writes are rejected and the movie remains unchanged

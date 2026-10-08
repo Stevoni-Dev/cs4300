@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.test import Client
 from django.utils import timezone
+from rest_framework.test import APIClient
 
 from bookings.models import Movie, Seat
 
@@ -72,7 +73,10 @@ def step_visitor_opens_registration_with_csrf(context):
     context.csrf_token = token_match.group(1)
 
 
-@when('the visitor registers with username "{username}" and password "{password}"')  # pylint: disable=not-callable
+@when(  # pylint: disable=not-callable
+    'the visitor registers with username "{username}" '
+    'and password "{password}"'
+)
 def step_visitor_registers(context, username, password):
     """Submit the registration form through its HTML route."""
     context.response = context.browser_client.post(
@@ -86,7 +90,10 @@ def step_visitor_registers(context, username, password):
     )
 
 
-@when('the visitor submits valid CSRF-protected registration data for "{username}"')  # pylint: disable=not-callable
+@when(  # pylint: disable=not-callable
+    'the visitor submits valid CSRF-protected registration data '
+    'for "{username}"'
+)
 def step_visitor_submits_csrf_registration(context, username):
     """Submit valid registration details with the rendered form token."""
     password = "valid-password-123"
@@ -118,7 +125,10 @@ def step_account_exists(_context, username):
     assert User.objects.filter(username=username).exists()
 
 
-@when('the visitor signs in with username "{username}" and password "{password}"')  # pylint: disable=not-callable
+@when(  # pylint: disable=not-callable
+    'the visitor signs in with username "{username}" '
+    'and password "{password}"'
+)
 def step_visitor_signs_in(context, username, password):
     """Submit the sign-in form using the registration browser session."""
     context.response = context.browser_client.post(
@@ -230,7 +240,10 @@ def step_account_tries_to_book_seat(context, username, seat_number):
     )
 
 
-@then("the first booking succeeds and the second sees an unavailable-seat message")  # pylint: disable=not-callable
+@then(  # pylint: disable=not-callable
+    "the first booking succeeds and the second sees an "
+    "unavailable-seat message"
+)
 def step_competing_request_is_rejected(context):
     """Assert only one booking exists and the losing user sees why."""
     first_page = context.first_response.content.decode().lower()
@@ -242,7 +255,9 @@ def step_competing_request_is_rejected(context):
     assert booking_model.objects.filter(seat=seat).count() == 1
 
 
-@when('the signed-in visitor books seats "{first}" and "{second}"')  # pylint: disable=not-callable
+@when(  # pylint: disable=not-callable
+    'the signed-in visitor books seats "{first}" and "{second}"'
+)
 def step_signed_in_visitor_books_two_seats(context, first, second):
     """Submit separate booking requests for each available seat."""
     context.booking_responses = []
@@ -268,11 +283,15 @@ def step_both_distinct_bookings_are_confirmed(context):
     ).count() == 2
 
 
-@given('signed-in account "{username}" has 21 bookings and another user\'s booking')  # pylint: disable=not-callable
+@given(  # pylint: disable=not-callable
+    'signed-in account "{username}" has 21 bookings and '
+    'another user\'s booking'
+)
 def step_signed_in_account_has_paginated_history(context, username):
     """Seed 21 owned bookings plus one private booking for another user."""
     context.history_client = _create_signed_in_client(username)
-    owner = User.objects.get(pk=context.history_client.session["_auth_user_id"])
+    owner_id = context.history_client.session["_auth_user_id"]
+    owner = User.objects.get(pk=owner_id)
     other_user = User.objects.create_user(
         username=f"{username}-other",
         password="valid-password-123",
@@ -330,7 +349,10 @@ def step_account_opens_next_booking_history_page(context):
     )
 
 
-@then("page one shows the 20 newest bookings without the other user's booking")  # pylint: disable=not-callable
+@then(  # pylint: disable=not-callable
+    "page one shows the 20 newest bookings without "
+    "the other user's booking"
+)
 def step_history_page_one_is_private_and_newest(context):
     """Check newest-first page content, page size, and user isolation."""
     assert context.history_response.status_code == 200
@@ -359,3 +381,172 @@ def step_history_page_shows_empty_state(context):
     assert context.history_response.status_code == 200
     page = context.history_response.content.decode().lower()
     assert "no bookings" in page or "no booking history" in page
+
+
+@given('signed-in account "{username}" can manage movies')  # pylint: disable=not-callable
+def step_signed_in_account_can_manage_movies(context, username):
+    """Create a signed-in API client for catalog-management requests."""
+    context.catalog_user = User.objects.create_user(
+        username=username,
+        password="valid-password-123",
+    )
+    context.catalog_client = APIClient()
+    context.catalog_client.force_login(context.catalog_user)
+
+
+@when('the catalog manager creates movie "{title}"')  # pylint: disable=not-callable
+def step_catalog_manager_creates_movie(context, title):
+    """Create a movie through the authenticated movie API."""
+    context.catalog_response = context.catalog_client.post(
+        "/api/movies/",
+        {
+            "title": title,
+            "description": "A movie created by a catalog workflow.",
+            "release_date": "2026-10-08",
+            "duration": 120,
+        },
+        format="json",
+    )
+
+
+@then("the movie is created successfully")  # pylint: disable=not-callable
+def step_movie_is_created_successfully(context):
+    """Retain the created movie ID for update and delete steps."""
+    assert context.catalog_response.status_code == 201
+    context.catalog_movie_id = context.catalog_response.json()["id"]
+
+
+@when('the catalog manager updates the movie title to "{title}"')  # pylint: disable=not-callable
+def step_catalog_manager_updates_movie(context, title):
+    """Patch the movie title through the authenticated catalog API."""
+    context.catalog_response = context.catalog_client.patch(
+        f"/api/movies/{context.catalog_movie_id}/",
+        {"title": title},
+        format="json",
+    )
+
+
+@then("the movie update is visible in the public catalog")  # pylint: disable=not-callable
+def step_movie_update_is_public(context):
+    """Check the update response and public movie collection."""
+    assert context.catalog_response.status_code == 200
+    context.catalog_movie_title = context.catalog_response.json()["title"]
+    public_response = APIClient().get("/api/movies/")
+    assert any(
+        movie["id"] == context.catalog_movie_id
+        and movie["title"] == context.catalog_movie_title
+        for movie in public_response.json()
+    )
+
+
+@when("the catalog manager deletes the movie")  # pylint: disable=not-callable
+def step_catalog_manager_deletes_movie(context):
+    """Delete the unbooked movie through the catalog API."""
+    context.catalog_response = context.catalog_client.delete(
+        f"/api/movies/{context.catalog_movie_id}/"
+    )
+
+
+@then("the movie is no longer in the catalog")  # pylint: disable=not-callable
+def step_movie_is_deleted(context):
+    """Verify deletion succeeded and public detail now returns not-found."""
+    assert context.catalog_response.status_code == 204
+    detail_response = APIClient().get(
+        f"/api/movies/{context.catalog_movie_id}/"
+    )
+    assert detail_response.status_code == 404
+
+
+@given('signed-in account "{username}" has a movie with booking history')  # pylint: disable=not-callable
+def step_catalog_manager_has_booked_movie(context, username):
+    """Create a protected movie, seat, and booking for the catalog manager."""
+    step_signed_in_account_can_manage_movies(context, username)
+    context.protected_movie = Movie.objects.create(  # pylint: disable=no-member
+        title="Protected by history",
+        description="A movie that must remain while it has bookings.",
+        release_date="2026-10-08",
+        duration=120,
+    )
+    protected_seat = Seat.objects.create(  # pylint: disable=no-member
+        movie=context.protected_movie,
+        seat_number="A1",
+    )
+    booking_model = apps.get_model("bookings", "Booking")
+    booking_model.objects.create(
+        movie=context.protected_movie,
+        seat=protected_seat,
+        user=context.catalog_user,
+    )
+
+
+@when("the catalog manager deletes that movie")  # pylint: disable=not-callable
+def step_catalog_manager_deletes_protected_movie(context):
+    """Attempt to delete a movie that already has booking history."""
+    context.catalog_response = context.catalog_client.delete(
+        f"/api/movies/{context.protected_movie.pk}/"
+    )
+
+
+@then(  # pylint: disable=not-callable
+    "deletion is rejected and the booking history is preserved"
+)
+def step_movie_delete_is_rejected_with_history(context):
+    """Check the conflict response and ensure the booking remains."""
+    assert context.catalog_response.status_code == 409
+    assert Movie.objects.filter(pk=context.protected_movie.pk).exists()
+    booking_model = apps.get_model("bookings", "Booking")
+    booking_count = booking_model.objects.filter(
+        movie=context.protected_movie
+    ).count()
+    assert booking_count == 1
+
+
+@given('movie "{title}" exists')  # pylint: disable=not-callable
+def step_movie_exists_for_anonymous_catalog(context, title):
+    """Create a public movie for anonymous write-rejection checks."""
+    context.anonymous_movie = Movie.objects.create(  # pylint: disable=no-member
+        title=title,
+        description="A movie for anonymous-write tests.",
+        release_date="2026-10-08",
+        duration=120,
+    )
+
+
+@when(  # pylint: disable=not-callable
+    "an anonymous visitor attempts movie create update and delete requests"
+)
+def step_anonymous_catalog_writes(context):
+    """Try protected movie mutations without an authenticated session."""
+    client = APIClient()
+    context.anonymous_write_responses = [
+        client.post(
+            "/api/movies/",
+            {
+                "title": "Anonymous Creation",
+                "description": "Should not be created.",
+                "release_date": "2026-10-08",
+                "duration": 100,
+            },
+            format="json",
+        ),
+        client.patch(
+            f"/api/movies/{context.anonymous_movie.pk}/",
+            {"title": "Anonymous Change"},
+            format="json",
+        ),
+        client.delete(f"/api/movies/{context.anonymous_movie.pk}/"),
+    ]
+
+
+@then(  # pylint: disable=not-callable
+    "all anonymous movie writes are rejected and the movie remains unchanged"
+)
+def step_anonymous_writes_are_rejected(context):
+    """Verify permission responses and the unchanged public record."""
+    assert all(
+        response.status_code == 403
+        for response in context.anonymous_write_responses
+    )
+    context.anonymous_movie.refresh_from_db()
+    assert context.anonymous_movie.title == "Protected Catalog Movie"
+    assert not Movie.objects.filter(title="Anonymous Creation").exists()
