@@ -143,7 +143,7 @@ class TestRegistrationBookingApi:
     def test_booking_creates_record_for_authenticated_user(
         self, movie_inventory, user
     ):
-        """Booking creation stores the session user and ignores client fields."""
+        """Booking creation stores the session user and ignores fields."""
         movie, seat, _, _ = movie_inventory
         client = APIClient()
         client.force_login(user)
@@ -173,7 +173,7 @@ class TestRegistrationBookingApi:
     def test_booking_returns_not_found_for_unknown_movie_or_seat(
         self, movie_inventory, user
     ):
-        """Unknown movie and seat identifiers return 404 without a booking."""
+        """Unknown movie and seat identifiers return 404 without booking."""
         movie, seat, _, _ = movie_inventory
         client = APIClient()
         client.force_login(user)
@@ -213,7 +213,7 @@ class TestRegistrationBookingApi:
     def test_reserved_seat_returns_conflict_and_unavailable_message(
         self, movie_inventory, user
     ):
-        """A seat can be claimed once and later requests explain the conflict."""
+        """A seat can be claimed once and later requests explain the issue."""
         movie, seat, _, _ = movie_inventory
         first_user = User.objects.create_user(
             username="first-booker", password="pass-123"

@@ -59,6 +59,9 @@ ignored-modules = ["dotenv"]
 load-plugins = ["pylint_django"]
 django-settings-module = "movie_theater_booking.settings"
 
+[tool.pylint.messages_control]
+disable = ["duplicate-code"]
+
 [tool.pylint.format]
 max-line-length = 79
 

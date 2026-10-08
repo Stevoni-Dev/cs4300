@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 """Unit tests for registration and atomic seat booking behavior."""
 
 from unittest.mock import patch
@@ -86,9 +87,14 @@ class TestRegistrationBookingService:
             {"username": "known-user", "password": "wrong-password-456"},
         ],
     )
-    def test_failed_sign_in_has_generic_error_and_no_session(self, credentials):
-        """Unknown users and wrong passwords expose one failure, with no login."""
-        User.objects.create_user(username="known-user", password="correct-pass-123")
+    def test_failed_sign_in_has_generic_error_and_no_session(
+        self, credentials
+    ):
+        """Unknown users and wrong passwords expose one failure."""
+        User.objects.create_user(
+            username="known-user",
+            password="correct-pass-123",
+        )
         form = SignInForm(data=credentials)
 
         assert not form.is_valid()
@@ -115,14 +121,17 @@ class TestRegistrationBookingService:
 
     def test_booking_rejects_a_seat_from_another_movie(self, movie_and_seats):
         """A seat cannot be booked through a different movie identifier."""
-        movie, _, seat = movie_and_seats
+        _, _, seat = movie_and_seats
         other_movie = Movie.objects.create(
             title="Arrival",
             description="A linguist decodes a mysterious signal.",
             release_date="2026-10-08",
             duration=116,
         )
-        user = User.objects.create_user(username="booker", password="pass-123")
+        user = User.objects.create_user(
+            username="booker",
+            password="pass-123",
+        )
 
         with pytest.raises(ValidationError):
             create_booking(user=user, movie=other_movie, seat=seat)

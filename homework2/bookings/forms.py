@@ -13,7 +13,7 @@ User = get_user_model()
 
 
 class RegistrationForm(UserCreationForm):  # pylint: disable=too-many-ancestors
-    """Validate new username/password details without saving until requested."""
+    """Validate new username/password details before save."""
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Configure Django's built-in user fields for registration."""
@@ -67,11 +67,15 @@ class SeatBookingForm(forms.Form):
     )
 
     def clean(self):
-        """Reject a real seat that is outside the selected movie inventory."""
+        """Reject a real seat outside the selected movie inventory."""
         cleaned_data = super().clean()
         movie = cleaned_data.get("movie")
         seat = cleaned_data.get("seat")
-        if movie is not None and seat is not None and seat.movie_id != movie.pk:
+        if (
+            movie is not None
+            and seat is not None
+            and seat.movie_id != movie.pk
+        ):
             raise forms.ValidationError(
                 "The selected seat does not belong to this movie."
             )

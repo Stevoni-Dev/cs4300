@@ -116,17 +116,25 @@ class SeatSerializer(
             seat_number = attrs.get("seat_number")
 
         if movie is not None and seat_number is not None:
-            queryset = Seat.objects.filter(movie=movie, seat_number=seat_number)
+            queryset = Seat.objects.filter(
+                movie=movie,
+                seat_number=seat_number,
+            )
             if self.instance is not None:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
                 raise serializers.ValidationError(
-                    {"seat_number": "This seat number is already used for this movie."}
+                    {
+                        "seat_number": (
+                            "This seat number is already used "
+                            "for this movie."
+                        )
+                    }
                 )
         return attrs
 
     def create(self, validated_data):
-        """Persist new seats as available inventory regardless of client input."""
+        """Persist new seats as available inventory regardless of input."""
         validated_data["status"] = Seat.STATUS_AVAILABLE
         return super().create(validated_data)
 

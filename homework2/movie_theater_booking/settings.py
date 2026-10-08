@@ -1,3 +1,4 @@
+# pylint: disable=duplicate-code
 """Django settings for the movie theater booking project.
 
 These settings centralize environment configuration, installed apps, database

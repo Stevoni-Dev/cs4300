@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 """Unit tests for the booking persistence model."""
 
 import pytest
@@ -14,7 +15,7 @@ User = get_user_model()
 @pytest.mark.unit
 @pytest.mark.django_db
 def test_booking_relations_and_server_set_booking_date():
-    """Booking links movie, seat, and user with a server-owned timestamp."""
+    """Booking links movie, seat, and user with a server timestamp."""
     movie = Movie.objects.create(
         title="Model test",
         description="A booking model test.",

@@ -160,7 +160,7 @@ class SeatViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
         serializer.save(status=Seat.STATUS_AVAILABLE)
 
     def perform_destroy(self, instance):
-        """Delete an unbooked seat or return conflict if a booking blocks it."""
+        """Delete an unbooked seat or return conflict on booking blocks."""
         try:
             instance.delete()
         except ProtectedError as exc:

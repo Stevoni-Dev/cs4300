@@ -1,3 +1,4 @@
+# pylint: disable=line-too-long
 """Integration tests for private, paginated booking history API results."""
 
 # Django adds ORM managers dynamically; Pylint cannot infer these attributes.
@@ -64,7 +65,7 @@ class TestBookingHistoryApi:
         return owner, owner_bookings, private_booking
 
     def test_anonymous_history_uses_native_drf_permission_response(self):
-        """Anonymous history requests are rejected before any data is returned."""
+        """Anonymous history requests are rejected before data is returned."""
         response = APIClient().get("/api/bookings/")
 
         assert response.status_code == 403
@@ -73,7 +74,9 @@ class TestBookingHistoryApi:
             "detail": "Authentication credentials were not provided."
         }
 
-    def test_history_is_user_scoped_newest_first_and_paged_by_twenty(self, history):
+    def test_history_is_user_scoped_newest_first_and_paged_by_twenty(
+        self, history
+    ):
         """History returns only owner records with stable newest-first pages."""
         owner, owner_bookings, private_booking = history
         client = APIClient()
@@ -109,7 +112,7 @@ class TestBookingHistoryApi:
         ]
 
     def test_empty_history_has_zero_count_and_empty_results(self):
-        """A signed-in user with no bookings receives an explicit empty page."""
+        """A signed-in user with no bookings gets an explicit empty page."""
         user = User.objects.create_user(
             username="empty-history-api",
             password="valid-password-123",
