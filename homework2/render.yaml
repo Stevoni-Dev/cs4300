@@ -22,9 +22,3 @@ services:
         fromDatabase:
           name: movie-theater-booking-db
           property: connectionString
-
-databases:
-  - name: movie-theater-booking-db
-    plan: basic-256mb
-    databaseName: movie_theater_booking
-    user: movie_theater_booking
