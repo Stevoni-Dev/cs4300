@@ -35,3 +35,17 @@ Feature: Reserve movie seats
     And account "multi-booker" exists and is signed in
     When the signed-in visitor books seats "A1" and "A2"
     Then both distinct bookings are confirmed
+
+  @integration
+  Scenario: Review private booking history across pages
+    Given signed-in account "history-reader" has 21 bookings and another user's booking
+    When the account opens booking history
+    Then page one shows the 20 newest bookings without the other user's booking
+    When the account opens the next booking history page
+    Then page two shows the remaining booking without a next page
+
+  @integration
+  Scenario: An account with no bookings sees an empty history
+    Given signed-in account "empty-history-reader" has no bookings
+    When the account opens booking history
+    Then the history page shows the empty state

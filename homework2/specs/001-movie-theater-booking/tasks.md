@@ -111,10 +111,10 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ### Tests for User Story 3 (TDD - write and observe failures first)
 
-- [ ] T028 [P] [US3] Add unit tests in `bookings/tests/unit/test_booking_history.py` for newest-first ordering and stable page boundaries at 20 items; mark `unit`.
-- [ ] T029 [P] [US3] Add API integration tests in `bookings/tests/integration/test_booking_history_api.py` for authenticated user scoping, page-number parameter, `count`/`next`/`previous`/`results`, page size 20, newest-first ordering, unauthenticated access rejection according to configured DRF classes, and empty `count: 0`, `results: []`; mark `integration`.
-- [ ] T030 [P] [US3] Add page integration tests in `bookings/tests/integration/test_booking_history_pages.py` for private user-scoped history, newest-first presentation, next-page navigation, and empty state; mark `integration`.
-- [ ] T031 [P] [US3] Add `@integration` Behave scenarios in `features/booking.feature` and `features/steps/booking_steps.py` for reviewing a user's bookings, excluding another user's data, pagination, and no-booking empty state.
+- [x] T028 [P] [US3] Add unit tests in `bookings/tests/unit/test_booking_history.py` for newest-first ordering and stable page boundaries at 20 items; mark `unit`.
+- [x] T029 [P] [US3] Add API integration tests in `bookings/tests/integration/test_booking_history_api.py` for authenticated user scoping, page-number parameter, `count`/`next`/`previous`/`results`, page size 20, newest-first ordering, unauthenticated access rejection according to configured DRF classes, and empty `count: 0`, `results: []`; mark `integration`.
+- [x] T030 [P] [US3] Add page integration tests in `bookings/tests/integration/test_booking_history_pages.py` for private user-scoped history, newest-first presentation, next-page navigation, and empty state; mark `integration`.
+- [x] T031 [P] [US3] Add `@integration` Behave scenarios in `features/booking.feature` and `features/steps/booking_steps.py` for reviewing a user's bookings, excluding another user's data, pagination, and no-booking empty state.
 
 ### Implementation for User Story 3
 

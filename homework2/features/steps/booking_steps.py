@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import re
+from datetime import timedelta
 
 from behave import given, then, when
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.test import Client
+from django.utils import timezone
 
 from bookings.models import Movie, Seat
 
@@ -264,3 +266,96 @@ def step_both_distinct_bookings_are_confirmed(context):
         user_id=context.browser_client.session["_auth_user_id"],
         movie=context.movie,
     ).count() == 2
+
+
+@given('signed-in account "{username}" has 21 bookings and another user\'s booking')  # pylint: disable=not-callable
+def step_signed_in_account_has_paginated_history(context, username):
+    """Seed 21 owned bookings plus one private booking for another user."""
+    context.history_client = _create_signed_in_client(username)
+    owner = User.objects.get(pk=context.history_client.session["_auth_user_id"])
+    other_user = User.objects.create_user(
+        username=f"{username}-other",
+        password="valid-password-123",
+    )
+    movie = Movie.objects.create(  # pylint: disable=no-member
+        title="History Feature",
+        description="A movie used by booking history scenarios.",
+        release_date="2026-10-08",
+        duration=100,
+    )
+    booking_model = apps.get_model("bookings", "Booking")
+    base_time = timezone.now()
+    for index in range(21):
+        seat = Seat.objects.create(  # pylint: disable=no-member
+            movie=movie, seat_number=f"F{index:02d}"
+        )
+        booking = booking_model.objects.create(
+            movie=movie,
+            seat=seat,
+            user=owner,
+        )
+        booking_model.objects.filter(pk=booking.pk).update(
+            booking_date=base_time + timedelta(minutes=index)
+        )
+    private_seat = Seat.objects.create(  # pylint: disable=no-member
+        movie=movie, seat_number="PRIVATE"
+    )
+    private_booking = booking_model.objects.create(
+        movie=movie,
+        seat=private_seat,
+        user=other_user,
+    )
+    booking_model.objects.filter(pk=private_booking.pk).update(
+        booking_date=base_time + timedelta(days=1)
+    )
+
+
+@given('signed-in account "{username}" has no bookings')  # pylint: disable=not-callable
+def step_signed_in_account_has_no_bookings(context, username):
+    """Create an authenticated account with no booking records."""
+    context.history_client = _create_signed_in_client(username)
+
+
+@when("the account opens booking history")  # pylint: disable=not-callable
+def step_account_opens_booking_history(context):
+    """Request the first page of the current account's booking history."""
+    context.history_response = context.history_client.get("/bookings/history/")
+
+
+@when("the account opens the next booking history page")  # pylint: disable=not-callable
+def step_account_opens_next_booking_history_page(context):
+    """Request the second page of the current account's booking history."""
+    context.history_response = context.history_client.get(
+        "/bookings/history/?page=2"
+    )
+
+
+@then("page one shows the 20 newest bookings without the other user's booking")  # pylint: disable=not-callable
+def step_history_page_one_is_private_and_newest(context):
+    """Check newest-first page content, page size, and user isolation."""
+    assert context.history_response.status_code == 200
+    page = context.history_response.content.decode()
+    assert all(f"F{index:02d}" in page for index in range(1, 21))
+    assert "F00" not in page
+    assert "PRIVATE" not in page
+    assert page.index("F20") < page.index("F01")
+    assert "page=2" in page
+
+
+@then("page two shows the remaining booking without a next page")  # pylint: disable=not-callable
+def step_history_page_two_has_remaining_booking(context):
+    """Check the final booking appears on page two with no next link."""
+    assert context.history_response.status_code == 200
+    page = context.history_response.content.decode()
+    assert "F00" in page
+    assert "F20" not in page
+    assert "PRIVATE" not in page
+    assert "page=3" not in page
+
+
+@then("the history page shows the empty state")  # pylint: disable=not-callable
+def step_history_page_shows_empty_state(context):
+    """Check a signed-in account without bookings sees an empty message."""
+    assert context.history_response.status_code == 200
+    page = context.history_response.content.decode().lower()
+    assert "no bookings" in page or "no booking history" in page
