@@ -71,3 +71,34 @@ Feature: Reserve movie seats
     Given movie "Protected Catalog Movie" exists
     When an anonymous visitor attempts movie create update and delete requests
     Then all anonymous movie writes are rejected and the movie remains unchanged
+
+  @integration
+  Scenario: A signed-in user adds a seat another user can book
+    Given movie "Seat Inventory Feature" has available seats "A1" and "A2"
+    And signed-in account "seat-manager" can manage seats
+    When the seat manager adds seat "A3"
+    And another account books seat "A3"
+    Then seat "A3" is added and can be booked by the other account
+
+  @integration
+  Scenario: A user cannot add a duplicate seat number
+    Given movie "Duplicate Seat Feature" has available seats "A1" and "A2"
+    And signed-in account "duplicate-seat-manager" can manage seats
+    When the seat manager adds seat "A3"
+    And the seat manager tries to add duplicate seat "A3"
+    Then the duplicate seat number is rejected
+
+  @integration
+  Scenario: A booked seat cannot be deleted
+    Given movie "Booked Seat Feature" has available seats "A1" and "A2"
+    And signed-in account "booked-seat-manager" can manage seats
+    When the seat manager adds seat "A3"
+    And another account books seat "A3"
+    And the seat manager deletes seat "A3"
+    Then the booked seat deletion is rejected
+
+  @integration
+  Scenario: Anonymous visitors cannot add seats
+    Given movie "Anonymous Seat Feature" has available seats "A1" and "A2"
+    When an anonymous visitor attempts to add seat "ANON"
+    Then anonymous seat creation is rejected without changing inventory

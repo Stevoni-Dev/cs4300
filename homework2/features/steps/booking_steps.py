@@ -13,7 +13,7 @@ from django.test import Client
 from django.utils import timezone
 from rest_framework.test import APIClient
 
-from bookings.models import Movie, Seat
+from bookings.models import Booking, Movie, Seat
 
 
 User = get_user_model()
@@ -550,3 +550,117 @@ def step_anonymous_writes_are_rejected(context):
     context.anonymous_movie.refresh_from_db()
     assert context.anonymous_movie.title == "Protected Catalog Movie"
     assert not Movie.objects.filter(title="Anonymous Creation").exists()
+
+
+@given('signed-in account "{username}" can manage seats')  # pylint: disable=not-callable
+def step_signed_in_account_can_manage_seats(context, username):
+    """Create a signed-in seat inventory editor."""
+    context.seat_manager = User.objects.create_user(
+        username=username,
+        password="valid-password-123",
+    )
+    context.seat_manager_client = APIClient()
+    context.seat_manager_client.force_login(context.seat_manager)
+
+
+@when('the seat manager adds seat "{seat_number}"')  # pylint: disable=not-callable
+def step_seat_manager_adds_seat(context, seat_number):
+    """Create one inventory record through the seat API."""
+    context.seat_response = context.seat_manager_client.post(
+        "/api/seats/",
+        {"movie": context.movie.pk, "seat_number": seat_number},
+        format="json",
+    )
+    assert context.seat_response.status_code == 201
+    context.managed_seat = Seat.objects.get(
+        pk=context.seat_response.json()["id"]
+    )
+    context.seats[seat_number] = context.managed_seat
+
+
+@when('the seat manager tries to add duplicate seat "{seat_number}"')  # pylint: disable=not-callable
+def step_seat_manager_adds_duplicate_seat(context, seat_number):
+    """Attempt to add a seat label already used by the movie."""
+    context.duplicate_seat_response = context.seat_manager_client.post(
+        "/api/seats/",
+        {"movie": context.movie.pk, "seat_number": seat_number},
+        format="json",
+    )
+
+
+@when('another account books seat "{seat_number}"')  # pylint: disable=not-callable
+def step_another_account_books_inventory_seat(context, seat_number):
+    """Book a managed seat as a different authenticated user."""
+    context.seat_booker = User.objects.create_user(
+        username="seat-inventory-booker",
+        password="valid-password-123",
+    )
+    context.seat_booker_client = APIClient()
+    context.seat_booker_client.force_login(context.seat_booker)
+    context.booking_response = context.seat_booker_client.post(
+        "/api/bookings/",
+        {
+            "movie": context.movie.pk,
+            "seat": context.seats[seat_number].pk,
+        },
+        format="json",
+    )
+
+
+@when('the seat manager deletes seat "{seat_number}"')  # pylint: disable=not-callable
+def step_seat_manager_deletes_seat(context, seat_number):
+    """Delete a seat from the manager's movie inventory."""
+    seat = context.seats[seat_number]
+    context.seat_delete_response = context.seat_manager_client.delete(
+        f"/api/seats/{seat.pk}/"
+    )
+
+
+@when('an anonymous visitor attempts to add seat "{seat_number}"')  # pylint: disable=not-callable
+def step_anonymous_visitor_adds_seat(context, seat_number):
+    """Attempt to create movie inventory without signing in."""
+    context.anonymous_seat_number = seat_number
+    context.anonymous_seat_response = APIClient().post(
+        "/api/seats/",
+        {"movie": context.movie.pk, "seat_number": seat_number},
+        format="json",
+    )
+
+
+@then('seat "{seat_number}" is added and can be booked by the other account')  # pylint: disable=not-callable
+def step_added_seat_is_booked_by_other_account(context, seat_number):
+    """Verify the new seat is public inventory and another user booked it."""
+    assert context.seat_response.status_code == 201
+    assert context.seat_response.json()["status"] == Seat.STATUS_AVAILABLE
+    assert context.booking_response.status_code == 201
+    seat = Seat.objects.get(pk=context.seats[seat_number].pk)
+    seat.refresh_from_db()
+    assert seat.status == Seat.STATUS_RESERVED
+    assert Booking.objects.filter(seat=seat, user=context.seat_booker).exists()
+
+
+@then("the duplicate seat number is rejected")  # pylint: disable=not-callable
+def step_duplicate_seat_is_rejected(context):
+    """Check the duplicate error is attached to the seat label."""
+    assert context.duplicate_seat_response.status_code == 400
+    assert "seat_number" in context.duplicate_seat_response.json()
+    assert Seat.objects.filter(movie=context.movie).count() == 3
+
+
+@then("the booked seat deletion is rejected")  # pylint: disable=not-callable
+def step_booked_seat_deletion_is_rejected(context):
+    """Verify the API preserves both the booked seat and its booking."""
+    assert context.booking_response.status_code == 201
+    assert context.seat_delete_response.status_code == 409
+    assert Seat.objects.filter(pk=context.managed_seat.pk).exists()
+    assert Booking.objects.filter(seat=context.managed_seat).exists()
+
+
+@then("anonymous seat creation is rejected without changing inventory")  # pylint: disable=not-callable
+def step_anonymous_seat_creation_is_rejected(context):
+    """Check permission failure and absence of anonymous inventory changes."""
+    assert context.anonymous_seat_response.status_code == 403
+    assert not Seat.objects.filter(
+        movie=context.movie,
+        seat_number=context.anonymous_seat_number,
+    ).exists()
