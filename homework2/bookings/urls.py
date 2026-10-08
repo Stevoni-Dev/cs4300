@@ -8,6 +8,7 @@ from .views import (
     login_view,
     logout_view,
     booking_create_view,
+    booking_history_view,
     movie_detail_view,
     movie_list_view,
     registration_view,
@@ -27,4 +28,5 @@ urlpatterns = [
     path("login/", login_view, name="login"),
     path("logout/", logout_view, name="logout"),
     path("bookings/", booking_create_view, name="booking-create"),
+    path("bookings/history/", booking_history_view, name="booking-history"),
 ]

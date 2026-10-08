@@ -1,0 +1,47 @@
+{% extends "bookings/base.html" %}
+
+{% block title %}Booking history{% endblock %}
+
+{% block content %}
+  <h1 class="h2">Booking history</h1>
+
+  {% if page.object_list %}
+    <ol class="list-group list-group-numbered mt-3">
+      {% for booking in page.object_list %}
+        <li class="list-group-item">
+          <div class="fw-semibold">{{ booking.movie.title }}</div>
+          <div>Seat {{ booking.seat.seat_number }}</div>
+          <time datetime="{{ booking.booking_date|date:'c' }}">
+            {{ booking.booking_date|date:"Y-m-d H:i" }}
+          </time>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {% if page.has_other_pages %}
+      <nav class="mt-3" aria-label="Booking history pages">
+        <ul class="pagination">
+          {% if page.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page.previous_page_number }}">
+                Previous
+              </a>
+            </li>
+          {% endif %}
+          <li class="page-item active" aria-current="page">
+            <span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+          </li>
+          {% if page.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page.next_page_number }}">
+                Next
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
+  {% else %}
+    <p class="mt-3">No bookings in your history yet.</p>
+  {% endif %}
+{% endblock %}

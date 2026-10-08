@@ -5,11 +5,12 @@ from __future__ import annotations
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from .forms import RegistrationForm, SeatBookingForm, SignInForm
-from .models import Movie
+from .models import Booking, Movie
 from .services import SeatUnavailableError, create_booking
 
 
@@ -101,3 +102,20 @@ def booking_create_view(request):
             f"Booking confirmed for seat {seat.seat_number}.",
         )
     return redirect("movie-detail", pk=movie.pk)
+
+
+@login_required(login_url="login")
+def booking_history_view(request):
+    """Display only the signed-in user's newest bookings, 20 per page."""
+    booking_list = Booking.objects.filter(  # pylint: disable=no-member
+        user=request.user
+    ).select_related(
+        "movie", "seat"
+    ).order_by("-booking_date", "-pk")
+    paginator = Paginator(booking_list, 20)
+    page = paginator.get_page(request.GET.get("page"))
+    return render(
+        request,
+        "bookings/booking_history.html",
+        {"page": page},
+    )
