@@ -1,72 +1,56 @@
-"""Integration checks for DRF's configured authentication behavior."""
+"""Integration checks for authentication on real protected API routes."""
 
-import os
+# Django adds ORM managers dynamically; Pylint cannot infer these attributes.
+# pylint: disable=no-member
 
-import django
 import pytest
 from django.contrib.auth import get_user_model
-from django.test import override_settings
-from django.urls import path
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.test import APIClient
 
-os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE",
-    "movie_theater_booking.settings",
-)
-django.setup()
+from bookings.models import Movie
 
 
-@api_view(["GET", "POST"])
-@permission_classes([IsAuthenticated])
-def protected_view(_request):
-    """Test-only protected endpoint used to validate the auth contract."""
-    return Response({"ok": True})
-
-
-urlpatterns = [
-    path("test-protected/", protected_view, name="test-protected"),
-]
+User = get_user_model()
 
 
 @pytest.mark.integration
 @pytest.mark.django_db
-class TestAuthErrors:
-    """Exercise the configured SessionAuthentication behavior."""
+def test_movie_writes_reject_authenticated_session_without_csrf():
+    """DRF rejects session-authenticated movie writes without valid CSRF."""
+    user = User.objects.create_user(
+        username="csrf-movie-writer",
+        password="secret-passphrase",
+    )
+    movie = Movie.objects.create(
+        title="Protected Movie",
+        description="A movie used to verify write protection.",
+        release_date="2026-10-08",
+        duration=100,
+    )
+    client = APIClient(enforce_csrf_checks=True)
+    client.force_login(user)
 
-    @override_settings(ROOT_URLCONF=__name__)
-    def test_anonymous_request_uses_default_drf_authentication_response(
-        self,
-    ):
-        """Anonymous SessionAuthentication requests have no challenge."""
-        client = APIClient()
+    create_response = client.post(
+        "/api/movies/",
+        {
+            "title": "CSRF Created Movie",
+            "description": "This write must be rejected.",
+            "release_date": "2026-10-09",
+            "duration": 101,
+        },
+        format="json",
+    )
+    update_response = client.patch(
+        f"/api/movies/{movie.pk}/",
+        {"title": "CSRF Updated Movie"},
+        format="json",
+    )
+    delete_response = client.delete(f"/api/movies/{movie.pk}/")
 
-        response = client.get("/test-protected/")
-
-        assert response.status_code == 403
-        assert response.json() == {
-            "detail": "Authentication credentials were not provided."
-        }
-        assert "WWW-Authenticate" not in response
-
-    @override_settings(ROOT_URLCONF=__name__)
-    def test_session_authentication_rejects_invalid_csrf(self):
-        """SessionAuthentication denies unsafe requests without valid CSRF."""
-        user_model = get_user_model()
-        user_model.objects.create_user(
-            username="csrf-user",
-            password="secret-passphrase",
-        )
-        client = APIClient(enforce_csrf_checks=True)
-        client.login(username="csrf-user", password="secret-passphrase")
-
-        response = client.post(
-            "/test-protected/",
-            {"hello": "world"},
-        )
-
-        assert response.status_code == 403
-        assert response.json().keys() == {"detail"}
-        assert response.json()["detail"].startswith("CSRF Failed:")
+    assert all(
+        response.status_code >= 400
+        for response in (create_response, update_response, delete_response)
+    )
+    assert not Movie.objects.filter(title="CSRF Created Movie").exists()
+    movie.refresh_from_db()
+    assert movie.title == "Protected Movie"
