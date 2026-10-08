@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, permissions, response, status, viewsets
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -18,6 +19,14 @@ class SeatConflictError(exceptions.APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = "The seat is unavailable."
     default_code = "seat_unavailable"
+
+
+class MovieBookingHistoryConflict(exceptions.APIException):
+    """Represent a protected movie deletion as an HTTP 409 conflict."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "Movies with booking history cannot be deleted."
+    default_code = "booking_history_conflict"
 
 
 class BookingHistoryPagination(PageNumberPagination):
@@ -41,6 +50,13 @@ class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
         else:
             permission_classes = [permissions.IsAuthenticated]
         return [permission() for permission in permission_classes]
+
+    def perform_destroy(self, instance):
+        """Preserve booking history and report deletion conflicts."""
+        try:
+            instance.delete()
+        except ProtectedError as exc:
+            raise MovieBookingHistoryConflict() from exc
 
 
 class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
