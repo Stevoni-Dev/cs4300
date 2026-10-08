@@ -3,16 +3,28 @@
 from __future__ import annotations
 
 from django.shortcuts import get_object_or_404
-from rest_framework import exceptions, permissions, response, viewsets
+from rest_framework import exceptions, permissions, response, status, viewsets
+from rest_framework.mixins import CreateModelMixin
 
-from .models import Movie, Seat
-from .serializers import MovieSerializer, SeatSerializer
+from .models import Booking, Movie, Seat
+from .serializers import BookingSerializer, MovieSerializer, SeatSerializer
+from .services import SeatUnavailableError
+
+
+class SeatConflictError(exceptions.APIException):
+    """Represent an unavailable seat as the contract's conflict response."""
+
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "The seat is unavailable."
+    default_code = "seat_unavailable"
 
 
 class MovieViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
     """Public movie list and detail endpoints."""
 
-    queryset = Movie.objects.all().order_by("release_date", "title")
+    queryset = Movie.objects.all().order_by(  # pylint: disable=no-member
+        "release_date", "title"
+    )
     serializer_class = MovieSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -20,7 +32,7 @@ class MovieViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-a
 class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
     """Public movie-scoped seat list and detail endpoints."""
 
-    queryset = Seat.objects.select_related("movie").order_by(
+    queryset = Seat.objects.select_related("movie").order_by(  # pylint: disable=no-member
         "movie_id", "seat_number"
     )
     serializer_class = SeatSerializer
@@ -46,3 +58,23 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-an
         )
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
+
+
+class BookingViewSet(
+    CreateModelMixin,
+    viewsets.GenericViewSet,
+):  # pylint: disable=too-many-ancestors
+    """Create one booking for the authenticated user."""
+
+    queryset = Booking.objects.select_related(  # pylint: disable=no-member
+        "movie", "seat", "user"
+    )
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        """Translate a lost seat claim into the documented 409 response."""
+        try:
+            serializer.save()
+        except SeatUnavailableError as exc:
+            raise SeatConflictError(detail=str(exc)) from exc
