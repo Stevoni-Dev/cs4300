@@ -1,12 +1,13 @@
-"""DRF endpoints for the public catalog and protected booking resources.
+"""DRF endpoints for the public catalog and authenticated inventory resources.
 
-Movie and seat reads are public; movie mutations require authentication.
-Booking creation and history require authentication and use the configured
-session authentication and CSRF behavior.
+Movie and seat reads are public; movie and seat mutations require
+authentication. Booking creation and history require authentication and use
+the configured session authentication and CSRF behavior.
 """
 
 from __future__ import annotations
 
+from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404
 from rest_framework import exceptions, permissions, response, status, viewsets
@@ -83,18 +84,34 @@ class MovieViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
             raise MovieBookingHistoryConflict() from exc
 
 
-class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-ancestors
-    """Expose public seat detail and movie-scoped availability reads.
+class SeatInventoryConflict(exceptions.APIException):
+    """Return HTTP 409 when a seat is protected by booking history."""
 
-    Seat inventory is provisioned separately; this API does not create or
-    mutate seats. Collection requests require a valid ``movie`` query value.
+    status_code = status.HTTP_409_CONFLICT
+    default_detail = "Seat inventory is protected by booking history."
+    default_code = "seat_inventory_conflict"
+
+
+class SeatViewSet(viewsets.ModelViewSet):  # pylint: disable=too-many-ancestors
+    """Expose public seat reads and authenticated seat inventory mutations.
+
+    Collection reads require a valid ``movie`` query value. Create, update,
+    and delete actions require authentication and preserve server-controlled
+    status values.
     """
 
     queryset = Seat.objects.select_related("movie").order_by(  # pylint: disable=no-member
         "movie_id", "seat_number"
     )
     serializer_class = SeatSerializer
-    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        """Allow anonymous reads but require signed-in writes."""
+        if self.action in {"list", "retrieve"}:
+            permission_classes = [permissions.AllowAny]
+        else:
+            permission_classes = [permissions.IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def list(self, request, *args, **kwargs):
         """List seats for one movie or return a validation/not-found response.
@@ -128,6 +145,19 @@ class SeatViewSet(viewsets.ReadOnlyModelViewSet):  # pylint: disable=too-many-an
         )
         serializer = self.get_serializer(queryset, many=True)
         return response.Response(serializer.data)
+
+    def perform_create(self, serializer):
+        """Persist a new seat as available inventory on the server side."""
+        serializer.save(status=Seat.STATUS_AVAILABLE)
+
+    def perform_destroy(self, instance):
+        """Delete an unbooked seat or return conflict if a booking blocks it."""
+        try:
+            instance.delete()
+        except ProtectedError as exc:
+            raise SeatInventoryConflict() from exc
+        except IntegrityError as exc:
+            raise SeatInventoryConflict() from exc
 
 
 class BookingViewSet(

@@ -78,19 +78,16 @@ class SeatSerializer(
 ):  # pylint: disable=too-few-public-methods
     """Validate seat writes and serialize movie-scoped seat inventory."""
 
-    movie = serializers.PrimaryKeyRelatedField(
+    movie = NotFoundPrimaryKeyRelatedField(
         queryset=Movie.objects.all(),  # pylint: disable=no-member
+        pk_field=serializers.IntegerField(),
     )
     seat_number = SeatNumberField(
         max_length=10,
         allow_blank=False,
         trim_whitespace=True,
     )
-    status = serializers.ChoiceField(
-        choices=Seat.STATUS_CHOICES,
-        required=False,
-        default=Seat.STATUS_AVAILABLE,
-    )
+    status = serializers.ReadOnlyField()
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Fields included in a seat response."""
@@ -101,8 +98,13 @@ class SeatSerializer(
 
     def validate(self, attrs):
         """Reject duplicate seat labels within the same movie."""
-        movie = attrs.get("movie")
-        seat_number = attrs.get("seat_number")
+        if self.instance is not None:
+            movie = attrs.get("movie", self.instance.movie)
+            seat_number = attrs.get("seat_number", self.instance.seat_number)
+        else:
+            movie = attrs.get("movie")
+            seat_number = attrs.get("seat_number")
+
         if movie is not None and seat_number is not None:
             queryset = Seat.objects.filter(movie=movie, seat_number=seat_number)
             if self.instance is not None:
