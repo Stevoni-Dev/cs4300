@@ -63,16 +63,66 @@ class MovieSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-p
         fields = ["id", "title", "description", "release_date", "duration"]
 
 
+class SeatNumberField(serializers.CharField):
+    """Reject non-string seat labels before DRF coerces them to text."""
+
+    def to_internal_value(self, data):
+        """Require a real string label and keep whitespace trimming intact."""
+        if not isinstance(data, str):
+            raise serializers.ValidationError("This field must be a string.")
+        return super().to_internal_value(data)
+
+
 class SeatSerializer(
     serializers.ModelSerializer
 ):  # pylint: disable=too-few-public-methods
-    """Serialize a seat's ID, movie ID, label, and availability state."""
+    """Validate seat writes and serialize movie-scoped seat inventory."""
+
+    movie = serializers.PrimaryKeyRelatedField(
+        queryset=Movie.objects.all(),  # pylint: disable=no-member
+    )
+    seat_number = SeatNumberField(
+        max_length=10,
+        allow_blank=False,
+        trim_whitespace=True,
+    )
+    status = serializers.ChoiceField(
+        choices=Seat.STATUS_CHOICES,
+        required=False,
+        default=Seat.STATUS_AVAILABLE,
+    )
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Fields included in a seat response."""
 
         model = Seat
         fields = ["id", "movie", "seat_number", "status"]
+        validators = []
+
+    def validate(self, attrs):
+        """Reject duplicate seat labels within the same movie."""
+        movie = attrs.get("movie")
+        seat_number = attrs.get("seat_number")
+        if movie is not None and seat_number is not None:
+            queryset = Seat.objects.filter(movie=movie, seat_number=seat_number)
+            if self.instance is not None:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            if queryset.exists():
+                raise serializers.ValidationError(
+                    {"seat_number": "This seat number is already used for this movie."}
+                )
+        return attrs
+
+    def create(self, validated_data):
+        """Persist new seats as available inventory regardless of client input."""
+        validated_data["status"] = Seat.STATUS_AVAILABLE
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        """Ignore client-supplied movie/status fields on updates."""
+        validated_data.pop("movie", None)
+        validated_data.pop("status", None)
+        return super().update(instance, validated_data)
 
 
 class BookingSerializer(
