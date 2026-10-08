@@ -141,7 +141,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ### Implementation for User Story 4
 
-- [ ] T039 [US4] Extend `MovieSerializer` in `bookings/serializers.py` with create/update validation for required non-empty bounded title, required description/date, and positive whole-minute duration.
+- [x] T039 [US4] Extend `MovieSerializer` in `bookings/serializers.py` with create/update validation for required non-empty bounded title, required description/date, and positive whole-minute duration.
 - [ ] T040 [US4] Enable authenticated movie create/update/delete actions in the DRF movie viewset in `bookings/api.py` while keeping movie list/detail reads public and using the single signed-in user role for every write.
 - [ ] T041 [US4] Reject deletion of any movie with booking history in `bookings/api.py` or `bookings/services.py` using the documented `409` response; allow deletion only when no booking history exists.
 - [ ] T042 [US4] Run US4 unit, API integration, and Behave tests; confirm movie CRUD changes appear in the existing listing page without a separate management role or page.

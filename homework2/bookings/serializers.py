@@ -26,7 +26,19 @@ class NotFoundPrimaryKeyRelatedField(  # pylint: disable=too-few-public-methods
 
 
 class MovieSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-public-methods
-    """Public representation of a movie."""
+    """Validate movie catalog writes and serialize public movie details."""
+
+    title = serializers.CharField(
+        max_length=200,
+        allow_blank=False,
+        trim_whitespace=True,
+    )
+    description = serializers.CharField(
+        allow_blank=False,
+        trim_whitespace=True,
+    )
+    release_date = serializers.DateField()
+    duration = serializers.IntegerField(min_value=1)
 
     class Meta:  # pylint: disable=too-few-public-methods
         """Fields included in a movie response."""
@@ -35,7 +47,9 @@ class MovieSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-p
         fields = ["id", "title", "description", "release_date", "duration"]
 
 
-class SeatSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-public-methods
+class SeatSerializer(
+    serializers.ModelSerializer
+):  # pylint: disable=too-few-public-methods
     """Public representation of a seat and its current availability."""
 
     class Meta:  # pylint: disable=too-few-public-methods
@@ -45,11 +59,19 @@ class SeatSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-pu
         fields = ["id", "movie", "seat_number", "status"]
 
 
-class BookingSerializer(serializers.ModelSerializer):  # pylint: disable=too-few-public-methods
-    """Accept a movie and seat while keeping owner and date server-controlled."""
+class BookingSerializer(
+    serializers.ModelSerializer
+):  # pylint: disable=too-few-public-methods
+    """Accept a movie and seat; keep owner and date server-controlled."""
 
-    movie_title = serializers.CharField(source="movie.title", read_only=True)
-    seat_number = serializers.CharField(source="seat.seat_number", read_only=True)
+    movie_title = serializers.CharField(
+        source="movie.title",
+        read_only=True,
+    )
+    seat_number = serializers.CharField(
+        source="seat.seat_number",
+        read_only=True,
+    )
     movie = NotFoundPrimaryKeyRelatedField(
         queryset=Movie.objects.all(),  # pylint: disable=no-member
         pk_field=serializers.IntegerField(),
