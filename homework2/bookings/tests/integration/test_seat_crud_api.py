@@ -348,6 +348,7 @@ def test_existing_seat_list_query_contract_is_unchanged():
     assert empty.status_code == 200
     assert empty.json() == []
     assert client.get(f"/api/seats/{999999}/").status_code == 404
+    assert client.get(f"/api/movies/{movie.pk}/seats/").status_code == 404
 
 
 @pytest.mark.integration
