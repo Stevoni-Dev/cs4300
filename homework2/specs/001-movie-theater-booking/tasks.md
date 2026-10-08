@@ -88,7 +88,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement the Booking model and migration in `bookings/models.py` and `bookings/migrations/` with required Movie/Seat/User relations, server-set read-only `booking_date`, and a one-to-one Seat relation preventing more than one booking per seat.
+- [x] T022 [US2] Implement the Booking model and migration in `bookings/models.py` and `bookings/migrations/` with required Movie/Seat/User relations, server-set read-only `booking_date`, and a one-to-one Seat relation preventing more than one booking per seat.
 - [ ] T023 [US2] Implement registration and sign-in forms/views in `bookings/forms.py` and `bookings/views.py`; return field-specific errors for invalid/duplicate registration with no partial account, and the same generic sign-in failure for unknown account or wrong password.
 - [ ] T024 [US2] Implement the shared atomic booking operation in `bookings/services.py`; verify the seat belongs to the movie, conditionally claim only an `available` seat, create the booking for the authenticated user, and roll back both writes on failure.
 - [ ] T025 [US2] Implement booking serializer and create endpoint in `bookings/serializers.py` and `bookings/api.py`; ignore client-supplied user/date, enforce authentication/CSRF through DRF, preserve its standard authentication/permission responses, and map booking-domain failures to `400`, `404`, or `409` as specified.
