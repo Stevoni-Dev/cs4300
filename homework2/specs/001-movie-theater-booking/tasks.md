@@ -11,7 +11,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 **Testing**: TDD is mandatory. For each behavior, write tests first and observe the expected failure before implementation. Every Django test MUST be classified exactly once with `@tag("unit")` or `@tag("integration")`; Behave scenarios MUST be tagged `@integration`.
 
-**Organization**: Tasks are grouped by the four independently reviewable user stories. Story dependencies are stated below.
+**Organization**: Tasks are grouped by the five independently reviewable user stories. Story dependencies are stated below.
 
 ## Format: `[ID] [P?] [Story?] Description`
 
@@ -150,6 +150,30 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 
 ---
 
+## Phase 6a: User Story 5 - Maintain a Movie's Seat Inventory (Priority: P2)
+
+**Goal**: Allow any signed-in user in the single user role to create, retrieve, update, and delete seats under a movie at `/api/movies/{movie_id}/seats/` (spec FR-017 to FR-020); public seat reads and the existing `/api/seats/` routes are unchanged.
+
+**Independent Test**: Through the API, create seats for a movie, retrieve and rename one, reject a duplicate number within the movie (while allowing it in another movie), delete an unbooked seat, reject deletion of a booked seat with `409`, reject anonymous writes, and confirm the movie detail page and `GET /api/seats/?movie=<id>` reflect each change.
+
+### Tests for User Story 5 (TDD - write and observe failures first)
+
+- [ ] T051 [P] [US5] Add unit tests in `bookings/tests/unit/test_seat_crud.py` for seat serializer validation (FR-018: required, blank/whitespace-only, over-length, and non-string `seat_number`; duplicate within a movie rejected with a field error; same number allowed in a different movie; a rename to the seat's own current number is valid), server-controlled fields (FR-019: new seats are `available`; client `status` and `movie` are ignored), and seat deletion protection when a booking exists (FR-020); mark `unit`.
+- [ ] T052 [P] [US5] Add API integration tests in `bookings/tests/integration/test_seat_crud_api.py` for `/api/movies/{movie_id}/seats/` list/retrieve/create/update/partial-update/delete: `201` with `status: available` even when the client sends `reserved`; client-supplied `movie` ignored; duplicate/invalid number `400` with a field-specific error; unknown movie `404` on every action; a seat ID belonging to another movie `404` on retrieve/update/delete; anonymous writes rejected according to configured DRF classes with the inventory unchanged while anonymous reads succeed; authenticated invalid-CSRF writes rejected with no mutation; delete of a booked seat `409` with the seat and booking intact; deleting an unbooked movie removes its seats; created/renamed/deleted seats appear in `GET /api/seats/?movie=<id>` and the movie detail page; mark `integration`.
+- [ ] T053 [P] [US5] Add `@integration` Behave scenarios in `features/booking.feature` and `features/steps/booking_steps.py` for a signed-in user adding seats to a movie and then another user booking one, rejecting a duplicate seat number, rejecting deletion of a booked seat, and rejecting anonymous seat creation.
+
+### Implementation for User Story 5
+
+- [ ] T054 [US5] Add seat write validation in `bookings/serializers.py`: trimmed, required, non-blank `seat_number` bounded by the model field; read-only `movie` and `status`; a `validate_seat_number` check that reads the movie from serializer context and rejects duplicates within it (excluding the instance being updated) with a field-specific error, because the model `UniqueConstraint` is not auto-validated once `movie` is read-only. Keep the existing read output (`id`, `movie`, `seat_number`, `status`) unchanged.
+- [ ] T055 [US5] Add a movie-scoped seat `ModelViewSet` in `bookings/api.py` that resolves the movie from the URL or returns `404`, limits its queryset to that movie's seats, uses `AllowAny` for `list`/`retrieve` and `IsAuthenticated` otherwise, sets `movie` and `available` status in `perform_create`, and maps `ProtectedError` in `perform_destroy` to a `409` conflict exception (as `MovieViewSet` does). Leave the read-only `SeatViewSet` and its `?movie=` behavior intact, and update its docstring that says seats are provisioned separately.
+- [ ] T056 [US5] Register `api/movies/<int:movie_pk>/seats/` and `api/movies/<int:movie_pk>/seats/<int:pk>/` in `bookings/urls.py` using explicit `as_view` action maps, without adding a nested-router dependency; confirm they do not shadow the `DefaultRouter` movie routes.
+- [ ] T057 [US5] Update `contracts/api.md` (replace the "provisioned separately" note under Seats and document the new endpoints, status codes `201`/`200`/`204`/`400`/`404`/`409`, and server-controlled fields), `data-model.md` (Seat create/delete rules and the remaining `available -> reserved` transition), `plan.md`, `quickstart.md` (seed seats through the API), and `README.md` (API routes table and the sentence that says seats are added through the API).
+- [ ] T058 [US5] Run the US5 unit, API integration, and Behave tests, then the full suite and `.venv/bin/python3.12 -m pylint .`; confirm US1 to US4 tests still pass, no migration is required, and the new endpoints satisfy FR-017 to FR-020.
+
+**Checkpoint**: A movie can be made bookable using only the API; seat inventory changes never alter or erase booking history.
+
+---
+
 ## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Complete documentation, deployment readiness, accessibility, and cross-story validation.
@@ -180,6 +204,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - **US2 (P1)**: Depends on US1 seat/movie models and availability routes; adds user registration/sign-in and Booking.
 - **US3 (P2)**: Depends on US2 Booking and authentication; tests independently with bookings for multiple users.
 - **US4 (P2)**: Depends on US1 Movie model/API and US2 Booking model to preserve history during deletion.
+- **US5 (P2)**: Depends on US1 Seat model and read routes, US2 Booking model (delete protection), and US4 movie-API patterns; T058 must pass before T046 is re-run for final validation.
 
 ### Within Each User Story
 
@@ -193,6 +218,7 @@ description: "Dependency-ordered implementation tasks for Movie Theater Booking"
 - During US2 test-first work: T018–T021 can be prepared in parallel across unit, API, page, and Behave files.
 - During US3 test-first work: T028–T031 can be prepared in parallel across unit, API, page, and Behave files.
 - During US4 test-first work: T036–T038 can be prepared in parallel.
+- During US5 test-first work: T051–T053 can be prepared in parallel across unit, API, and Behave files; T054–T056 touch `serializers.py`, `api.py`, and `urls.py` and may be parallelized only after their tests are observed failing.
 - After test tasks are complete, independent serializer/view/template tasks may be parallelized only when different files are owned and no prerequisite is incomplete.
 - T043–T045 touch separate docs/deployment/template review paths and may proceed in parallel after their relevant stories stabilize.
 
@@ -216,14 +242,14 @@ After those tests are observed failing, implement the related behavior in bookin
 1. Complete Setup and Foundational phases.
 2. Complete US1 browse movies and seat availability as the first demonstrable slice.
 3. Complete US2 registration/sign-in and atomic seat booking next; this is the first end-to-end booking MVP.
-4. Add US3 booking history and US4 movie catalog CRUD as separate increments.
+4. Add US3 booking history, US4 movie catalog CRUD, and US5 seat inventory CRUD as separate increments.
 5. Complete cross-cutting documentation, test-suite, UI, and Render checks.
 
 ### Incremental Delivery
 
 - Deliver US1 with its unit/integration tests, then confirm the public browse flow works.
 - Deliver US2 after US1, with TDD evidence and API/HTML/Behave booking coverage.
-- Deliver US3 and US4 independently after their declared model/auth prerequisites.
+- Deliver US3, US4, and US5 independently after their declared model/auth prerequisites.
 - Keep the application releasable at each story checkpoint; do not start a dependent story before its prerequisite checkpoint passes.
 
 ---
@@ -232,6 +258,6 @@ After those tests are observed failing, implement the related behavior in bookin
 
 - Every task uses the required checkbox + sequential ID format and names concrete project paths.
 - `[P]` marks only work in separate files with satisfied dependencies.
-- `[US#]` labels map to the four user stories in `spec.md`.
+- `[US#]` labels map to the five user stories in `spec.md`.
 - Every behavior task has test-first tasks; observe the expected red result before implementation.
 - All test tasks preserve the constitution's mutually exclusive `unit`/`integration` taxonomy; Behave is always `integration`.

@@ -149,9 +149,10 @@ reflect each change.
   request is rejected with a specific error and the inventory is unchanged; the same
   number may exist for a different movie.
 6. **Given** a seat request has a missing, blank, or invalid seat number, or attempts
-  to set the booking status, a movie, or other server-controlled fields, **When** the
-  request is submitted, **Then** it is rejected or ignored as specified, identifies the
-  problem, and the seat is not created or changed.
+  to set the booking status or movie, **When** the request is submitted, **Then** an
+  invalid seat number is rejected with a specific error and nothing is created or
+  changed, while client-supplied status and movie values are ignored (new seats are
+  `available` and stay with the movie in the path).
 7. **Given** a seat request references an unknown movie, or a seat that does not belong
   to the movie in the request path, **When** the request is submitted, **Then** the API
   returns `404 Not Found` and changes nothing.
