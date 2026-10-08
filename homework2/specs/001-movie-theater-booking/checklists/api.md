@@ -12,7 +12,7 @@
 
 - [x] CHK001 Are all movie fields required for creation and update, including field constraints and accepted date/duration formats, specified? [Completeness, Spec §FR-001, §FR-011]
 - [x] CHK002 Are the allowed movie API operations and their access requirements defined consistently for collection and individual movie resources? [Completeness, Spec §FR-011]
-- [x] CHK003 Are seat inventory creation, initial provisioning, and ownership rules defined well enough to make movie-scoped availability usable? [Gap, Spec §FR-002, Assumptions]
+- [x] CHK003 Are seat inventory creation, initial provisioning, and ownership rules defined well enough to make movie-scoped availability usable? [Gap, Spec §FR-002, §FR-017–FR-020, Assumptions]
 - [x] CHK004 Are booking request fields, server-owned fields, and the relationship between a seat and its movie explicitly specified? [Completeness, Spec §FR-003, §FR-004]
 - [x] CHK005 Are success and failure outcomes specified for movie listing, detail, create, update, and delete operations? [Completeness, Spec §FR-001, §FR-011]
 - [x] CHK006 Are API-level requirements for registration and sign-in, including invalid credentials and duplicate account details, defined or intentionally delegated? [Completeness, Spec §FR-007, §FR-012, §FR-013]
@@ -34,7 +34,7 @@
 
 ## Acceptance Criteria and Traceability
 
-- [x] CHK016 Can each externally observable API requirement be mapped to an acceptance scenario with explicit request conditions and response/data outcomes? [Acceptance Criteria, Spec §FR-001–FR-007, User Stories 1–4]
+- [x] CHK016 Can each externally observable API requirement be mapped to an acceptance scenario with explicit request conditions and response/data outcomes? [Acceptance Criteria, Spec §FR-001–FR-007, §FR-011–FR-020, User Stories 1–5]
 - [x] CHK017 Are measurable success criteria defined for API correctness and authorization, beyond the current movie-display, booking-conflict, and history-privacy outcomes? [Measurability, Spec §SC-001–SC-005]
 - [x] CHK018 Are API contract requirements kept aligned with the movie CRUD scope, single-role permission model, and delete-preserves-booking-history rule? [Consistency, Spec §FR-007, §FR-011]
 

@@ -24,6 +24,12 @@
 - Q: Is deployment to Render part of this project? → A: Yes. Render is a deployment target, and deployment is in scope for this project.
 - Q: How should Render deployments handle application data across cold starts and restarts? → A: Use PostgreSQL for the Render deployment so database records persist across restarts.
 
+### Session 2026-10-08
+
+- Q: Is seat inventory CRUD part of phase one, and who may perform it? → A: Yes. Signed-in users with the single user role create, retrieve, update, and delete seats through a movie-scoped seats API; no administrator role is introduced.
+- Q: How is seat inventory addressed? → A: Seats belong to exactly one movie and are managed under that movie at `/api/movies/{movie_id}/seats/`; an unknown movie returns `404 Not Found`.
+- Q: May seat CRUD change a seat's booking status or delete a booked seat? → A: No. New seats are always `available`; booking status is changed only by bookings, and a seat with booking history cannot be deleted.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Browse Movies and Seat Availability (Priority: P1)
@@ -111,6 +117,48 @@ delete it when it has no booking history; public movie listings reflect each cha
   update, or delete a movie through the movie API, **Then** the request is rejected
   and the catalog remains unchanged.
 
+---
+
+### User Story 5 - Maintain a Movie's Seat Inventory (Priority: P2)
+
+As a signed-in user, I want to create, update, and remove seats for a movie through
+the movie-scoped seats API so that a movie's seat inventory can be maintained without
+introducing another user role.
+
+**Why this priority**: A movie cannot be booked until it has seats, and seat inventory
+maintenance is required in phase one, while seat booking remains the primary user value.
+
+**Independent Test**: A signed-in user can create a seat for a movie, retrieve and
+update it, and delete it when it has no booking history; movie-scoped seat listings
+reflect each change.
+
+**Acceptance Scenarios**:
+
+1. **Given** a movie exists and a signed-in user submits a valid seat number, **When**
+  the user creates a seat for that movie through the seats API, **Then** the seat is
+  stored for that movie with the `available` status and appears in its seat listing.
+2. **Given** a seat exists for a movie, **When** a signed-in user submits a valid new
+  seat number, **Then** the updated seat number appears in API responses and the
+  movie's seat listing.
+3. **Given** a seat has no booking history, **When** a signed-in user deletes it
+  through the seats API, **Then** it is removed from the movie's seat listing.
+4. **Given** a seat has booking history, **When** a signed-in user attempts to delete
+  it, **Then** deletion is rejected and its booking history remains available.
+5. **Given** a movie already has a seat with a seat number, **When** a signed-in user
+  creates or updates another seat for that movie to the same number, **Then** the
+  request is rejected with a specific error and the inventory is unchanged; the same
+  number may exist for a different movie.
+6. **Given** a seat request has a missing, blank, or invalid seat number, or attempts
+  to set the booking status, a movie, or other server-controlled fields, **When** the
+  request is submitted, **Then** it is rejected or ignored as specified, identifies the
+  problem, and the seat is not created or changed.
+7. **Given** a seat request references an unknown movie, or a seat that does not belong
+  to the movie in the request path, **When** the request is submitted, **Then** the API
+  returns `404 Not Found` and changes nothing.
+8. **Given** a visitor is not signed in, **When** the visitor attempts to create,
+  update, or delete a seat through the seats API, **Then** the request is rejected and
+  the inventory remains unchanged; seat reads remain public.
+
 ### Edge Cases
 
 - The movie listing is empty or a movie has no seats in its inventory.
@@ -119,6 +167,10 @@ delete it when it has no booking history; public movie listings reflect each cha
 - A booking request references a movie or seat that does not exist.
 - A signed-in user has no booking history.
 - A user attempts to view booking history or reserve a seat without signing in.
+- A seat is created, renamed, or deleted while a user is viewing or booking it; a booked
+  seat is never removed or reassigned to a different movie.
+- A movie with seats but no booking history is deleted; its seat inventory is removed
+  with it, while a movie with booking history cannot be deleted.
 - Movie descriptions or titles are long and must remain readable in the listing and
   movie details.
 
@@ -143,7 +195,11 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - **FR-014**: A booking request referencing an unknown movie or seat MUST return `404 Not Found`. A request pairing an existing seat with a different existing movie MUST return `400 Bad Request` and MUST NOT create a booking.
 - **FR-015**: A user MAY create bookings for multiple distinct seats for the same movie, with one booking per seat. No user may create another booking for a seat that is already reserved.
 - **FR-016**: The booking-history API MUST return the signed-in user's bookings newest first in pages of 20. If the user has no bookings, it MUST return an empty result list and a count of zero.
-- **FR-017**: The project MUST deploy the application to Render and provide deployment configuration and instructions. The application MUST become ready to serve its primary page and API within the configured startup/readiness window, and application data MUST remain available after a service restart.
+- **FR-017**: The seats API MUST allow a signed-in user to create, retrieve, update, and delete seats using the single user role, with each seat managed under exactly one movie at `/api/movies/{movie_id}/seats/`. Anonymous users MUST NOT create, update, or delete seats; seat reads remain public (FR-002).
+- **FR-018**: A seat number MUST be required, non-blank, and unique within its movie, and MAY repeat across movies. Duplicate or invalid seat numbers MUST be rejected with specific errors and MUST NOT create or change a seat.
+- **FR-019**: Newly created seats MUST have the `available` status. Booking status MUST be controlled only by the booking process (FR-003, FR-004), and seat create or update requests MUST NOT set it. A seat MUST NOT be reassigned to another movie.
+- **FR-020**: A seat with booking history MUST NOT be deletable; the request MUST be rejected with `409 Conflict` and the booking history MUST remain available. Seat requests for an unknown movie, or for a seat that does not belong to the movie in the path, MUST return `404 Not Found`.
+- **FR-021**: The project MUST deploy the application to Render and provide deployment configuration and instructions. The application MUST become ready to serve its primary page and API within the configured startup/readiness window, and application data MUST remain available after a service restart.
 
 ### Quality Acceptance Scenarios
 
@@ -155,7 +211,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 ### Key Entities *(include if feature involves data)*
 
 - **Movie**: A listed movie with a title, description, release date, and duration.
-- **Seat**: A numbered seat in a movie's single seat inventory, with its current booking status.
+- **Seat**: A numbered seat in a movie's single seat inventory, with its current booking status. Each seat belongs to exactly one movie, its number is unique within that movie, and it is removed only when it has no booking history.
 - **Booking**: A reservation linking one movie, one seat, one user, and the booking date.
 - **User**: A signed-in person who can make bookings and view only their own booking history. Phase one has one user role.
 
@@ -175,7 +231,7 @@ user-friendly interface with clear seat states, booking confirmations, useful er
 - Each movie represents one bookable event in phase one and has one seat inventory. Multiple showtimes, screenings, and auditoriums are out of scope.
 - The application provides user registration and sign-in in phase one. The account details and sign-in method are not defined by this feature.
 - Movie catalog CRUD is in scope for phase one through the movie API and uses the existing single user role; no separate administrator role or movie-management page is introduced. 
-- Seat inventory CRUD is in scope for phase one through the seats API and uses the existing single user role; no separate administrator role or seat-management page is introduced
+- Seat inventory CRUD is in scope for phase one through the movie-scoped seats API and uses the existing single user role; no separate administrator role or seat-management page is introduced.
 - Render is a phase-one deployment target; deployment configuration, instructions, and validation are in scope.
 - Render deployment uses PostgreSQL so movie, seat, user, and booking data persist across service restarts; local development may use SQLite.
 - Booking cancellation, seat holds with expiration, ticket pricing, and payment are not included in phase one.

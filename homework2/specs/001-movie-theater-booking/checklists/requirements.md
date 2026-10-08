@@ -32,4 +32,4 @@
 ## Notes
 
 - Reviewer-owned requirements-quality review; checkbox status does not indicate implementation completion.
-- Single-event-per-movie, account identity, phase-one movie CRUD, and separately provisioned seat inventory are documented in the spec.
+- Single-event-per-movie, account identity, phase-one movie CRUD, and movie-scoped seat inventory CRUD are documented in the spec.
