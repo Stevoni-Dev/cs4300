@@ -1,5 +1,8 @@
 """Integration tests for registration, sign-in, and booking pages."""
 
+# Django adds ORM managers dynamically; Pylint cannot infer these attributes.
+# pylint: disable=no-member
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.test import Client
@@ -58,6 +61,40 @@ class TestRegistrationBookingPages:
         assert response.status_code == 200
         assert set(response.context["form"].errors) == {"password2"}
         assert not User.objects.filter(username="new-page-user").exists()
+
+    def test_registration_accepts_valid_csrf_token_and_creates_account(self):
+        """A browser can register with a CSRF token from the form page."""
+        client = Client(enforce_csrf_checks=True)
+        form_response = client.get("/register/")
+        csrf_token = form_response.context["csrf_token"]
+
+        rejected_response = client.post(
+            "/register/",
+            {
+                "username": "csrf-page-user",
+                "password1": "valid-password-123",
+                "password2": "valid-password-123",
+            },
+            HTTP_ORIGIN="https://app-mightyraven6850-28.lab.devedu.io",
+        )
+
+        assert rejected_response.status_code == 403
+        assert not User.objects.filter(username="csrf-page-user").exists()
+
+        response = client.post(
+            "/register/",
+            {
+                "username": "csrf-page-user",
+                "password1": "valid-password-123",
+                "password2": "valid-password-123",
+                "csrfmiddlewaretoken": csrf_token,
+            },
+            HTTP_ORIGIN="https://app-mightyraven6850-28.lab.devedu.io",
+            follow=True,
+        )
+
+        assert response.status_code == 200
+        assert User.objects.filter(username="csrf-page-user").exists()
 
     def test_duplicate_registration_shows_username_error(self):
         """The registration page identifies an already-used username."""

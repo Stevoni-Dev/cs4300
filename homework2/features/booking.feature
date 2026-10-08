@@ -16,6 +16,12 @@ Feature: Reserve movie seats
     Then the booking is confirmed for seat "A1"
 
   @integration
+  Scenario: Registration succeeds with a valid CSRF token
+    Given the visitor opens registration with CSRF checks enabled
+    When the visitor submits valid CSRF-protected registration data for "csrf-behave-user"
+    Then account "csrf-behave-user" exists
+
+  @integration
   Scenario: A second user cannot book an occupied seat
     Given movie "Arrival" has available seats "A1" and "A2"
     And accounts "first-booker" and "second-booker" exist

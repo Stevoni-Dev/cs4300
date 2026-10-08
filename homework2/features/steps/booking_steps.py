@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import re
+
 from behave import given, then, when
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -54,6 +56,20 @@ def step_visitor_opens_registration_page(context):
     assert context.response.status_code == 200
 
 
+@given("the visitor opens registration with CSRF checks enabled")  # pylint: disable=not-callable
+def step_visitor_opens_registration_with_csrf(context):
+    """Load the registration form with browser-like CSRF enforcement."""
+    context.browser_client = Client(enforce_csrf_checks=True)
+    context.response = context.browser_client.get("/register/")
+    assert context.response.status_code == 200
+    token_match = re.search(
+        r'name="csrfmiddlewaretoken"\s+value="([^"]+)"',
+        context.response.content.decode(),
+    )
+    assert token_match is not None
+    context.csrf_token = token_match.group(1)
+
+
 @when('the visitor registers with username "{username}" and password "{password}"')  # pylint: disable=not-callable
 def step_visitor_registers(context, username, password):
     """Submit the registration form through its HTML route."""
@@ -66,6 +82,32 @@ def step_visitor_registers(context, username, password):
         },
         follow=True,
     )
+
+
+@when('the visitor submits valid CSRF-protected registration data for "{username}"')  # pylint: disable=not-callable
+def step_visitor_submits_csrf_registration(context, username):
+    """Submit valid registration details with the rendered form token."""
+    password = "valid-password-123"
+    registration_data = {
+        "username": username,
+        "password1": password,
+        "password2": password,
+    }
+    rejected_response = context.browser_client.post(
+        "/register/",
+        registration_data,
+        HTTP_ORIGIN="https://app-mightyraven6850-28.lab.devedu.io",
+    )
+    assert rejected_response.status_code == 403
+    assert not User.objects.filter(username=username).exists()
+
+    context.response = context.browser_client.post(
+        "/register/",
+        {**registration_data, "csrfmiddlewaretoken": context.csrf_token},
+        HTTP_ORIGIN="https://app-mightyraven6850-28.lab.devedu.io",
+        follow=True,
+    )
+    assert context.response.status_code == 200
 
 
 @then('account "{username}" exists')  # pylint: disable=not-callable

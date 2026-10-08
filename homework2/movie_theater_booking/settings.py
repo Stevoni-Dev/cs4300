@@ -47,6 +47,8 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(",")
     if origin.strip()
 ]
+if DEBUG and "https://*.lab.devedu.io" not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append("https://*.lab.devedu.io")
 
 # Include Django auth, messaging, static files, DRF, Bootstrap, and the app.
 INSTALLED_APPS = [
