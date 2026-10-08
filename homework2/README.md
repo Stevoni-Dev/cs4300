@@ -92,6 +92,8 @@ DRF's configured authentication and permission responses.
 
 ## Render deployment
 
+Live deployment: <https://movie-theater-booking-bwna.onrender.com/>
+
 `render.yaml` defines a Render Blueprint with a Gunicorn web service and managed
 PostgreSQL database. To deploy, create a new Blueprint in Render from this repository
 and review the service and database plans before applying it. Render injects the
