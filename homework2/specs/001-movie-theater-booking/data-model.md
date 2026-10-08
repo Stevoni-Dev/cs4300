@@ -28,7 +28,11 @@ Represents one numbered seat in a movie's single inventory.
 | `seat_number` | Human-readable seat label | Required; unique within a movie |
 | `status` | Current booking state | `available` or `reserved`; initially available |
 
-Invariant: `(movie, seat_number)` is unique. In phase one the status transition is
+Invariant: `(movie, seat_number)` is unique. Seat inventory is created and maintained
+through `/api/seats/`: create requests supply `movie` and `seat_number`, the server sets
+`status` to `available`, and client-supplied `status` or a changed `movie` on update are
+ignored. Deleting a seat with booking history is rejected with `409`; deleting an
+unbooked seat removes it. In phase one the remaining status transition is
 `available -> reserved`; cancellation and reopening a seat are out of scope.
 
 ## Booking

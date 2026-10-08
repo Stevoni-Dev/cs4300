@@ -10,10 +10,12 @@ the planning request in this session.
 Build a Django application named `movie_theater_booking` with a `bookings` app, SQLite
 for local development, PostgreSQL on Render, and Django REST Framework. DRF serializers and viewsets expose movie CRUD, seat CRUD at `/api/seats/` (reads filtered by `?movie=`) and authenticated booking creation/history. Django template pages
 use the same ORM models and booking service as the API, with Bootstrap for the UI. Seat
-reservation is atomic and protected by database uniqueness constraints. The plan
-includes classified Django unit/API integration tests, Behave workflow tests, DevEdu
-port 3000 run instructions, Render deployment, and maintained setup/deployment/AI-use
-documentation.
+inventory is seeded and maintained through the same `/api/seats/` write route: new seats
+start as `available`, booked seats cannot be deleted, and booking history protects the
+seat record with `409` conflict responses. Seat reservation is atomic and protected by
+database uniqueness constraints. The plan includes classified Django unit/API
+integration tests, Behave workflow tests, DevEdu port 3000 run instructions, Render
+deployment, and maintained setup/deployment/AI-use documentation.
 
 **Movie catalog scope**: Movie CRUD is a phase-one goal through the authenticated movie
 API and uses the single user role. It is not a later extension; no separate

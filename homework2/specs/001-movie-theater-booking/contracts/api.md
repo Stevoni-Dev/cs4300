@@ -44,7 +44,10 @@ booking history exists, and unknown id returns `404`.
 A seat belongs to exactly one movie, and its `seat_number` is unique within that movie
 (the same number may exist for different movies). Seat responses contain `id`, `movie`,
 `seat_number`, and `status` (`available` or `reserved`). `/api/seats/` is the only seat
-endpoint; there are no movie-nested seat routes.
+endpoint; there are no movie-nested seat routes. The seat write API uses the same
+status codes as the rest of the project: `201` for create, `200` for successful update,
+`204` for successful delete, `400` for validation problems, `404` for missing goods, and
+`409` for booked-seat deletion conflicts.
 
 ### `GET /api/seats/?movie={movie_id}`
 

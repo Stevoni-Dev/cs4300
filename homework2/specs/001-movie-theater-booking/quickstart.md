@@ -47,6 +47,9 @@ With the local server running:
 
 - `GET /api/movies/` lists the same movies displayed on the movie page.
 - `GET /api/seats/?movie=<id>` displays the same availability as the seat page.
+- Sign in, include the session cookie and CSRF token, then `POST /api/seats/` to seed
+  inventory for a movie (`movie` and `seat_number`), `PUT` or `PATCH /api/seats/<id>/` to
+  rename a seat, and `DELETE /api/seats/<id>/` only when the seat has no booking history.
 - Sign in, include the session cookie and CSRF token, then `POST /api/bookings/` with
   `movie` and `seat`; expect `201` for the first reservation.
 - Submit the same seat again; expect `409` and no second booking.

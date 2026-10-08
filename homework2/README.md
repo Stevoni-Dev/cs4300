@@ -42,7 +42,7 @@ Open `http://localhost:3000/` locally, or open the forwarded port 3000 URL in De
 The root page lists movies. Register or sign in to book an available seat or manage the
 movie catalog. Booking history is available to signed-in users from the shared
 navigation. Migrations create the schema, not sample movie data; catalog and seat
-inventory must be added through the API or provisioned for local testing.
+inventory are seeded through the API for local testing and demo data setup.
 
 ## Tests
 
@@ -83,6 +83,9 @@ JSON API routes use `/api/`:
 | `DELETE /api/movies/<id>/` | Signed in | Delete an unbooked movie; booking history yields `409` |
 | `GET /api/seats/?movie=<id>` | Public | List a movie's seat availability |
 | `GET /api/seats/<id>/` | Public | Retrieve a seat |
+| `POST /api/seats/` | Signed in | Create a seat; new seats start as `available` |
+| `PUT` or `PATCH /api/seats/<id>/` | Signed in | Rename a seat within its movie; `movie` and `status` are ignored |
+| `DELETE /api/seats/<id>/` | Signed in | Delete an unbooked seat; booked seats return `409` |
 | `GET /api/bookings/` | Signed in | Own history, newest first, 20 per page (`?page=2`) |
 | `POST /api/bookings/` | Signed in | Book one seat; a claimed seat yields `409` |
 
